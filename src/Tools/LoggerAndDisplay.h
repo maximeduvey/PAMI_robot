@@ -5,8 +5,10 @@
 #include <string>
 #include <cstdarg>
 #include <cstdio>
-
+#include <mutex>
 #include "Tools.h"
+
+class PAMI;
 
 class LoggerAndDisplay
 {
@@ -21,6 +23,8 @@ public:
 
     static void log_and_display(int y, int x, const char *format, ...);
     static void logAsPrintf(const char *format, ...);
+
+    static void display_pami_stats(const PAMI& pami);
 
 private :
     static std::ofstream mLog_file;

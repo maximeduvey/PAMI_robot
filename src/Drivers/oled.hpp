@@ -12,6 +12,7 @@
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 
+/// OLED est l'écran sur la raspberry pi 0 v2
 class OLED
 {
     public:

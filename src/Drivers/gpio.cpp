@@ -71,7 +71,7 @@ void GPIO::onChange (int gpio, int level, uint32_t tick)
    // static uint32_t lastTick=0;
    // float elapsed = (float)(tick-lastTick)/1000000.0;
 
-   mvprintw(6, 0, "pin %d = %d\n", gpio, level);
+   LoggerAndDisplay::log_and_display(6, 0, "pin %d = %d\n", gpio, level);
 
    // refresh();
 

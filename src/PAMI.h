@@ -76,7 +76,7 @@ class PAMI
         ~PAMI();
         void init();    // PAMI Initialization (earliest, before the state machine starts)
         void tasks();   // Sequence of tasks to be run in a loop
-        void task();    // Task function for this class. Essentially handles time management
+        void handle_time(); // Task function for this class. Essentially handles time management
         // Task methods specific to each state, when applicable
         void task_bist();
         void task_idle();

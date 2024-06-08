@@ -188,7 +188,7 @@ void OLED::refresh()
 {
 	// Acquire the slave (OLED default address is 0x3C)
     if (ioctl(file_i2c, I2C_SLAVE, 0x3C) < 0)
-		mvprintw(5, 0, "Failed to acquire bus access and/or talk to slave.\n");	//ERROR HANDLING; you can check errno to see what went wrong
+		LoggerAndDisplay::log_and_display(5, 0, "Failed to acquire bus access and/or talk to slave.\n");	//ERROR HANDLING; you can check errno to see what went wrong
     write(file_i2c, frame_buffer, 513);   // Not 1025 because I'm using a 128 x 32 display only
 }
 
@@ -203,7 +203,7 @@ void OLED::init(int handle)
         frame_buffer[i] = 0;    // clear the frame buffer
 	// Acquire the slave (OLED default address is 0x3C)
     if (ioctl(file_i2c, I2C_SLAVE, 0x3C) < 0)
-		mvprintw(5, 0, "Failed to acquire bus access and/or talk to slave.\n");	//ERROR HANDLING; you can check errno to see what went wrong
+		LoggerAndDisplay::log_and_display(5, 0, "Failed to acquire bus access and/or talk to slave.\n");	//ERROR HANDLING; you can check errno to see what went wrong
     // Display init
     write(file_i2c, oled_param, sizeof(oled_param));
 	// First image (empty framebuffer)

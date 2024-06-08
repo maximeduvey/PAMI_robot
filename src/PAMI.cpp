@@ -14,7 +14,7 @@ PAMI::~PAMI()
 
 // Task method of the PAMI object (essentially, time management)
 // Call after the robot's inputs have been sampled
-void PAMI::task ()
+void PAMI::handle_time ()
 {
     struct timespec ts;
     timespec_get(&ts, TIME_UTC);        // Get the current time
@@ -284,7 +284,7 @@ void PAMI::init ()
             family = ifa->ifa_addr->sa_family;          // Check the interface is indeed IPv4
             if (family == AF_INET)          // Parse to PAMI::IP
                 s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), IP, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);  // returns 0 if failure
-                //mvprintw (line++, 0, "IF: %s\t\taddress: <%s>\n", ifa->ifa_name, host); // ifa_name will be "wlan0" for onboard WiFi
+                //LoggerAndDisplay::log_and_display(line++, 0, "IF: %s\t\taddress: <%s>\n", ifa->ifa_name, host); // ifa_name will be "wlan0" for onboard WiFi
                 //refresh ();
         }
         freeifaddrs(ifaddr);
