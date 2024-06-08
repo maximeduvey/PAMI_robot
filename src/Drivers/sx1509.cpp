@@ -33,15 +33,12 @@
 
 */
 
-#include "main.hpp"			    // Project header
 #include "sx1509.hpp"
+#include "LoggerAndDisplay.h"
+#include "common_includes.h"
 #include "sx1509_registers.h"
 
 // Functions ============================================================
-
-
-
-
 
 
 

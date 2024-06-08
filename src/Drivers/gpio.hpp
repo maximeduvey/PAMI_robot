@@ -8,6 +8,8 @@
 #ifndef __PAMI_GPIO_HPP__
 #define __PAMI_GPIO_HPP__
 
+// common type like uint32_t
+#include <cstdint>
 // Macros ===============================================================
 
 // GPIO numbers (GPIOxx, not the header pin numbers)

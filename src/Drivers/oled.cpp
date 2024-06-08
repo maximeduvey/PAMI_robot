@@ -33,11 +33,10 @@
 
 // Includes =============================================================
 
-#include "main.hpp"			// Project header
 #include "oled.hpp"
+#include "LoggerAndDisplay.h"
+#include "common_includes.h"
 #include <bcm2835.h>
-
-
 
 // Structures ===========================================================
 

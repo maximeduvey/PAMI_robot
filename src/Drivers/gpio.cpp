@@ -8,8 +8,9 @@
 
 */
 
-#include "main.hpp"			    // Project header
 #include "gpio.hpp"
+#include "LoggerAndDisplay.h"
+#include "common_includes.h"
 #include <pigpio.h>
 
 // Methods ==============================================================

@@ -6,9 +6,10 @@
 
 */
 
-#include "main.hpp"
 #include "drive.hpp"
 #include <errno.h>
+
+#include "LoggerAndDisplay.h"
 
 int DRIVE::init ()
 {

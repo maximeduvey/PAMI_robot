@@ -9,6 +9,8 @@
 #ifndef __PAMI_DRIVE_HPP__
 #define __PAMI_DRIVE_HPP__
 
+#include "common_includes.h"
+
 // ======= Constants =======================================================================
 
 // Swapping these ID's changes which side each motor is on

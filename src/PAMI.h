@@ -7,32 +7,12 @@
 #ifndef __PAMI_MAIN_HPP__
 #define __PAMI_MAIN_HPP__
 
-// Generic headers
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-// Time management
-#include <time.h>
 // I2C-related
 #include <unistd.h>				//Needed for I2C port, also microsecond timing (usleep)
 #include <fcntl.h>				//Needed for I2C port
 #include <sys/ioctl.h>			//Needed for I2C port
 #include <linux/i2c-dev.h>		//Needed for I2C port
-// CAN bus
-#include <net/if.h>
-#include <linux/can.h>
-#include <linux/can/raw.h>
-// Threads
-#include <pthread.h>
-// UDP networking
-#include <arpa/inet.h> // Not so sure
-#include <sys/socket.h>  // data structures for socket
-#include <netinet/in.h>	 // constants and structures for IP domain address
-#include <sys/types.h>	// definitions of data types used for system calls
-#include <netdb.h>      // for gethostbyname()
-#include <ifaddrs.h>    // for getifaddrs()
-// ncurses
-#include <ncurses.h>
+
 // Odometry
 #include <math.h>   // IMPORTANT - requires "-lm" in gcc command line
 // Drivers
@@ -53,24 +33,32 @@
 // #define PAMI_STOP_TIME      (92000000)
 #endif
 
-// State machine states (values of PAMI::state)
-#define PAMI_BIST   (0)     // Initial state
-#define PAMI_IDLE   (1)     // When not playing a match
-#define PAMI_ARMED  (2)     // Safety pin in place, ready to play a match
-#define PAMI_DELAY  (3)     // 90 second phase of the match where the PAMI waits
-#define PAMI_RUN    (4)     // The active phase, where the PAMI does its job
+// s3 == 0 for long move
+//#define TIMING_A1   (((io.s3 == 0) ? 92000000 : 91000000))  // 92.0 s
+//#define TIMING_A2   (((io.s3 == 0) ? 92500000 : 91500000))  // sensors off limit 92.5 s
+#define TIMING_A1   (92000000)
+#define TIMING_A2   (92500000)
 
 // ==== Classes =========================================
 
 class PAMI
 {
+    public:
+    enum PAMI_STATE : int {
+        PAMI_BIST = 0, // "Built-In Self Test" 
+        PAMI_IDLE = 1,
+        PAMI_ARMED = 2,
+        PAMI_DELAY = 3,
+        PAMI_RUN = 4
+    };
+
     public: // PAMI Identifaction
         char hostname[10];    // Local hostname (no need to make it long, it's either "canpi3" or "pami1")
         int id;         // PAMI number (last digit of the hostname: 1, 2 or 3)
         char IP[NI_MAXHOST];     // IP address, as string
 
     public: // PAMI State
-        int state;      // PAMI state machine current state
+        PAMI_STATE state;      // PAMI state machine current state
         GPIO io;        // The discrete GPIO (inputs) of the PAMI mainboard
         struct timespec tzero;     // System time when the pin was pulled (causing a state transition from ARMED to DELAY)
         unsigned int time;      // Time in microseconds since the pin was pulled
@@ -85,6 +73,7 @@ class PAMI
 
     public:
         PAMI();         // Default constructor
+        ~PAMI();
         void init();    // PAMI Initialization (earliest, before the state machine starts)
         void tasks();   // Sequence of tasks to be run in a loop
         void task();    // Task function for this class. Essentially handles time management
@@ -97,12 +86,6 @@ class PAMI
 
     public:     // Extra methods
         void stateString (char* );  // Provides the current state of the PAMI state machine as a string 
-
 };
-
-
-// ==== Externs =========================================
-
-extern PAMI pami;
 
 #endif // __PAMI_MAIN_HPP__
