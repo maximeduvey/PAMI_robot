@@ -36,10 +36,10 @@
 // Odometry
 #include <math.h>   // IMPORTANT - requires "-lm" in gcc command line
 // Drivers
-#include "oled.hpp"
-#include "sx1509.hpp"
-#include "gpio.hpp"
-#include "drive.hpp"
+#include "Drivers/oled.hpp"
+#include "Drivers/sx1509.hpp"
+#include "Drivers/gpio.hpp"
+#include "Drivers/drive.hpp"
 
 // ==== Macros ==========================================
 
