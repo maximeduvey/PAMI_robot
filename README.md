@@ -23,3 +23,11 @@ SUBSYSTEM=="gpio", KERNEL=="gpio*", ACTION=="add", GROUP="gpio", MODE="0660"
 SUBSYSTEM=="gpio", KERNEL=="gpiomem", ACTION=="add", GROUP="gpio", MODE="0660"
 # reboot
 
+
+####
+tar zxvf bcm2835-1.71.tar.gz
+./configure
+make
+sudo make check
+sudo make install
+
