@@ -38,7 +38,7 @@ void print_oled(unsigned int loopcnt)
     gPami.oled.print(str, 0, 2);
     gPami.oled.refresh();
         
-    sprintf (str, "gPami %i - batt %2.2f V", pami.id, (float) pami.drive.left.motor_state_1.motor_state_1.voltage / 100.0);
+    sprintf (str, "gPami %i - batt %2.2f V", gPami.id, (float) gPami.drive.left.motor_state_1.motor_state_1.voltage / 100.0);
 }
 
 void mainInit(){

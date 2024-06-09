@@ -318,7 +318,7 @@ void PAMI::tasks ()
 {
     // Before the state switch, call the tasks that are executed at the beginning of all state sequences
     io.task();      // Read all Raspi inputs
-    task();         // PAMI task (time management)
+    handle_time();  // PAMI task (time management)
     sx.task();      // SX1509 (servo control / input sampling)
 
     // FOR TESTS ONLY - MOTOR CONTROL TASK

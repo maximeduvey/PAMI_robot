@@ -1,5 +1,8 @@
 # Compiler and flags
-CXX = g++
+#CXX = g++
+# this is the raspberry pi0 compiler
+CXX = arm-linux-gnueabihf-g++
+#CXX = $(CROSS_PREFIX)g++
 CXXFLAGS = -Isrc/Drivers -Isrc/Tools -Isrc/ -Ilibs/bcm2835-1.71/src -Ilibs/pigpio-master -Wall -Wextra -pthread 
 LDFLAGS = -Llibs/pigpio-master/build -lpigpio -lbcm2835 -lncurses
 
