@@ -5,3 +5,4 @@ pami
 /build
 /logs
 /tmp
+/libs/glibc-2.34

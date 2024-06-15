@@ -73,6 +73,20 @@ sudo apt install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 wget http://ports.ubuntu.com/pool/main/n/ncurses/libncurses5-dev_6.2-0ubuntu2_armhf.deb
 wget http://ports.ubuntu.com/pool/main/n/ncurses/libncursesw5-dev_6.2-0ubuntu2_armhf.deb
  -->
+<!-- 
+ --host=arm-linux-gnueabihf CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++
+ -->
+ ### on the board we need glibc 2.34
+ sudo apt-get install build-essential
+wget http://ftp.gnu.org/gnu/libc/glibc-2.34.tar.gz
+tar -xzvf glibc-2.34.tar.gz
+cd glibc-2.34
+mkdir build
+cd build
+../configure --prefix=/opt/glibc-2.34
+make -j4
+sudo make install
+
 
 # my dpkg repository  sudo nano /etc/apt/sources.list
 # Original repository
