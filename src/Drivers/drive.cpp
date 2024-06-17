@@ -11,8 +11,9 @@
 
 #include "LoggerAndDisplay.h"
 
-int DRIVE::init ()
+int DRIVE::init (LoggerAndDisplay *logger)
 {
+    mlogger = logger;
     int retval = 0;     // Nominal return value
     // Open CAN socket
 	if ((sock = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
@@ -75,14 +76,14 @@ int DRIVE::can_read_reply_frame (int noblock = 1)
 {
 
     // static int cnt = 0;
-    // LoggerAndDisplay::log_and_display(11, 0, "%i", cnt++);
+    //mlogger->log_and_display(11, 0, "%i", cnt++);
     // refresh ();
 
     struct can_frame f;
 /*
     if (read(sock, &f, sizeof(struct can_frame)) < 0) // Blocking read
     {
-        LoggerAndDisplay::log_and_display(11, 0, "SOCKET ERROR");
+        mlogger->log_and_display(11, 0, "SOCKET ERROR");
         refresh ();
     }
 */
@@ -97,7 +98,7 @@ int DRIVE::can_read_reply_frame (int noblock = 1)
         usleep (1000);  // millisecond sleep
         if (cnt++ == 100000)
         {
-            LoggerAndDisplay::log_and_display(11, 0, "SOCKET ERROR - %i", cnt);
+            mlogger->log_and_display(11, 0, "SOCKET ERROR - %i", cnt);
             refresh ();           
         }
     }
@@ -108,7 +109,7 @@ int DRIVE::can_read_reply_frame (int noblock = 1)
         ssize_t sz = recv(sock, &f, sizeof(struct can_frame), MSG_DONTWAIT);    // non-blocking flag
         if (sz < 0)
         {
-            LoggerAndDisplay::log_and_display(11, 0, "ERR : %i", errno);
+            mlogger->log_and_display(11, 0, "ERR : %i", errno);
             // refresh ();
             return errno;
         }
@@ -127,7 +128,7 @@ int DRIVE::can_read_reply_frame (int noblock = 1)
     // DEBUG ONLY
     /*if (m == 0)
     {
-        LoggerAndDisplay::log_and_display(11, 0, "MESSAGE ERROR");
+        mlogger->log_and_display(11, 0, "MESSAGE ERROR");
         refresh ();
     }*/
     // Step 2 : determine which field of that structure to store the message into, and do it
@@ -423,7 +424,7 @@ void* DRIVE::motion_control_thread (void *arg)
     // Go straight to infinite loop:
     while (drive->kill == 0)
     {
-        LoggerAndDisplay::log_and_display(13, 0, "%i", loopcnt++);
+        //mlogger->log_and_display(13, 0, "%i", loopcnt++);
         // Limit execution rate to something CAN-friendly, say 100 Hz, by using a 10 ms pause
         usleep (10000);  // changed to blocking socket API, this shouldn't be necessary
 
@@ -507,7 +508,7 @@ void* DRIVE::motion_control_thread_old (void *arg)
     while (drive->kill == 0)
     {
 
-    LoggerAndDisplay::log_and_display(11, 0, "%i", cnt++);
+    //mlogger->log_and_display(11, 0, "%i", cnt++);
 
         // TO DO : add support for a command to reset cumulative position counters in the motors
 

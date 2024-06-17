@@ -15,8 +15,10 @@
 
 // Methods ==============================================================
 
-void GPIO::init ()
+void GPIO::init (LoggerAndDisplay *logger)
 {
+    mlogger = logger;
+    
     // GPIO init
     gpioInitialise();
     
@@ -71,7 +73,7 @@ void GPIO::onChange (int gpio, int level, uint32_t tick)
    // static uint32_t lastTick=0;
    // float elapsed = (float)(tick-lastTick)/1000000.0;
 
-   LoggerAndDisplay::log_and_display(6, 0, "pin %d = %d\n", gpio, level);
+    //mlogger->log_and_display(6, 0, "pin %d = %d\n", gpio, level);
 
    // refresh();
 

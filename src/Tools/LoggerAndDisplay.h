@@ -18,14 +18,15 @@ public:
     LoggerAndDisplay();
     ~LoggerAndDisplay();
 
-    static void initLogs(std::string filename = "");
-    static void closeLogs();
+    void initLogs(std::string filename = "");
+    void closeLogs();
 
-    static void log_and_display(int y, int x, const char *format, ...);
-    static void logAsPrintf(const char *format, ...);
+    static void toreplace_log_and_display(int y, int x, const char *format, ...);
+    void log_and_display(int y, int x, const char *format, ...);
+    void logAsPrintf(const char *format, ...);
 
-    static void display_pami_stats(const PAMI& pami);
+    void display_pami_stats(const PAMI& pami);
 
 private :
-    static std::ofstream mLog_file;
+    std::ofstream mLog_file;
 };

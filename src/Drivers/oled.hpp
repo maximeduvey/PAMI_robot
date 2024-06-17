@@ -12,17 +12,20 @@
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 
+class LoggerAndDisplay;
+
 /// OLED est l'écran sur la raspberry pi 0 v2
 class OLED
 {
     public:
         int file_i2c;                   // I2C bus handle
         uint8_t frame_buffer[513];      // 512 bytes of pixel data for 128x32. Additional byte for the "C/D" bit
+        LoggerAndDisplay *mlogger = nullptr;
 
     public:
         // OLED(); // default constructor
         void refresh ();
-        void init (int handle);     // takes an I2C bus file handle and initializes the display on that bus
+        void init (int handle, LoggerAndDisplay *logger);     // takes an I2C bus file handle and initializes the display on that bus
         void print_character (char c, uint8_t col, uint8_t line);
         void set_pixel (uint16_t x, uint16_t y, uint8_t c);	        // X, Y coordinates and color (1 or 0)
         void print (char* s, uint8_t col, uint8_t line);

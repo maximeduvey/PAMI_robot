@@ -2,6 +2,8 @@
 #include "PAMI.h"
 #include "Drivers/common_includes.h"
 
+#include "LoggerAndDisplay.h"
+
 // Default constructor
 PAMI::PAMI ()
 {
@@ -258,8 +260,9 @@ void PAMI::stateString (char *str)
 }
 
 // PAMI Initialization (earliest, before the state machine starts)
-void PAMI::init ()
+void PAMI::init (LoggerAndDisplay *logger)
 {
+    mlogger = logger;
     state = PAMI_BIST;      // PAMI always starts by testing itself
     gethostname (hostname, 10);    // Determine the local hostname
     char last = hostname[strlen(hostname) - 1];
@@ -284,7 +287,7 @@ void PAMI::init ()
             family = ifa->ifa_addr->sa_family;          // Check the interface is indeed IPv4
             if (family == AF_INET)          // Parse to PAMI::IP
                 s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), IP, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);  // returns 0 if failure
-                //LoggerAndDisplay::log_and_display(line++, 0, "IF: %s\t\taddress: <%s>\n", ifa->ifa_name, host); // ifa_name will be "wlan0" for onboard WiFi
+                //mlogger->log_and_display(line++, 0, "IF: %s\t\taddress: <%s>\n", ifa->ifa_name, host); // ifa_name will be "wlan0" for onboard WiFi
                 //refresh ();
         }
         freeifaddrs(ifaddr);
@@ -301,12 +304,12 @@ void PAMI::init ()
     // sx.mode[0] = 1;      // DEBUG CHECK
     // sx.move (0, 50);             // Servo control command : tells servo on pin 0 to go to 50% of its stroke
     // Initialize the I2C slaves
-    oled.init (file_i2c);
-    sx.init (file_i2c);
+    oled.init (file_i2c, mlogger);
+    sx.init (file_i2c, mlogger);
     // GPIO init
-    io.init ();
+    io.init (mlogger);
     // Propulsion init
-    drive.init();       // CAN bus initialization, socket binding
+    drive.init(mlogger);       // CAN bus initialization, socket binding
     // drive.start();      // Propulsion thread start - THREAD REPLACED BY TASK FUNCTION FOR NOW
     // Get an initial time
     timespec_get(&tzero, TIME_UTC);

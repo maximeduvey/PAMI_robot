@@ -15,15 +15,17 @@
 PAMI gPami; // mais salami
 //LoggerAndDisplay gLogger;
 
+LoggerAndDisplay gLogger;
+
 // === tmp test purpose
 void test_logger(){
-    LoggerAndDisplay::initLogs();
-    LoggerAndDisplay::log_and_display(4, 0, "DIP 1..4 : %i-%i-%i-%i", 0, 20, 50, 90);
-    LoggerAndDisplay::log_and_display(1, 0, "Ananaas : %s", "et caribou");
+    gLogger.initLogs();
+    gLogger.log_and_display(4, 0, "DIP 1..4 : %i-%i-%i-%i", 0, 20, 50, 90);
+    gLogger.log_and_display(1, 0, "Ananaas : %s", "et caribou");
 
     getch();
 
-    LoggerAndDisplay::closeLogs();
+    gLogger.closeLogs();
 }
 
 void print_oled(unsigned int loopcnt)
@@ -42,8 +44,8 @@ void print_oled(unsigned int loopcnt)
 }
 
 void mainInit(){
-    gPami.init(); // Initialize the PAMI
-    LoggerAndDisplay::initLogs(); // init log file and ncurses
+    gLogger.initLogs(); // init log file and ncurses
+    gPami.init(&gLogger); // Initialize the PAMI
 }
 
 // ==== Main function ===============================
@@ -52,9 +54,9 @@ int main()
     // Initialization
     mainInit();
 
-    LoggerAndDisplay::log_and_display(0, 0, "----== PAMI ==----");
-    LoggerAndDisplay::log_and_display(1, 0, "host : %s", gPami.hostname);
-    LoggerAndDisplay::log_and_display(2, 0, "PAMI : %i", gPami.id);
+    gLogger.log_and_display(0, 0, "----== PAMI ==----");
+    gLogger.log_and_display(1, 0, "host : %s", gPami.hostname);
+    gLogger.log_and_display(2, 0, "PAMI : %i", gPami.id);
     refresh ();
 
     // ============ DEMOs ================================================================
@@ -78,13 +80,13 @@ int main()
 
         // ============= DEBUG CODE ==========================================================
         // Debug only : ensure execution ends cleanly after a few seconds
-        LoggerAndDisplay::log_and_display(3, 0, "%05i", loopcnt);
+        gLogger.log_and_display(3, 0, "%05i", loopcnt);
         
         // Display on the OLED as well
         print_oled(loopcnt);
 
         // Display some of the inputs
-        LoggerAndDisplay::display_pami_stats(gPami);
+        gLogger.display_pami_stats(gPami);
 
         // New servo test
         //if (0)

@@ -19,12 +19,13 @@
 #define RIGHT_AHEAD (100)
 #define RIGHT_DEPLOYED (0)
 
-
+class LoggerAndDisplay;
 
 class SX1509
 {
     public:
         int file_i2c;                   // I2C bus handle
+        LoggerAndDisplay *mlogger = nullptr;
 
     public:     // pin configuration and state
         unsigned char mode[16];      // Mode for each individual pin
@@ -32,7 +33,7 @@ class SX1509
         unsigned char input[16];     // When a pin is setup as input, its state will be stored in this property for the application to access
 
     public:     // Low-level methods
-        void init (int handle);     // Takes an I2C bus file handle and initializes the SX1509 on that bus
+        void init (int handle, LoggerAndDisplay *logger);     // Takes an I2C bus file handle and initializes the SX1509 on that bus
         void getbus ();             // When the bus has multiple slaves, call this prior to talking to the SX1509
         void set (unsigned char addr, unsigned char data);        // Write a register
         unsigned char get (unsigned char addr);                  // Read a register

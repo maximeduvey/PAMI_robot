@@ -214,10 +214,13 @@ typedef struct Motor_s
 } Motor_t;
 
 // ======= Driver Class ====================================================================
+class LoggerAndDisplay;
 
 class DRIVE
 {
     public:
+        LoggerAndDisplay *mlogger = nullptr;
+
         // CAN bus sockets
         int sock; // formerly can_sock_motor_control;
 
@@ -248,7 +251,7 @@ class DRIVE
         void send (int id, unsigned char *data);    // equivalent to calling can_send_motor and can_read_reply_frame back to back (blocking)
 
     public:
-        int init ();       // Open and bind the CAN socket this object uses to talk to the motors
+        int init (LoggerAndDisplay*logger);       // Open and bind the CAN socket this object uses to talk to the motors
         void start ();            // Start the motor control thread
         void stop ();       // Kill the propulsion thread, close the CAN sockets
 

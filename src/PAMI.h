@@ -40,6 +40,7 @@
 #define TIMING_A2   (92500000)
 
 // ==== Classes =========================================
+class LoggerAndDisplay; // predefine logger
 
 class PAMI
 {
@@ -71,10 +72,13 @@ class PAMI
     public: // PAMI propulsion
         DRIVE drive;
 
+    public :
+        LoggerAndDisplay *mlogger = nullptr;
+
     public:
         PAMI();         // Default constructor
         ~PAMI();
-        void init();    // PAMI Initialization (earliest, before the state machine starts)
+        void init(LoggerAndDisplay *logger);    // PAMI Initialization (earliest, before the state machine starts)
         void tasks();   // Sequence of tasks to be run in a loop
         void handle_time(); // Task function for this class. Essentially handles time management
         // Task methods specific to each state, when applicable

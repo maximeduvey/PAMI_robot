@@ -28,6 +28,7 @@
 #define PIN_PULLED  (1)
 
 // Class ================================================================
+class LoggerAndDisplay;
 
 class GPIO
 {
@@ -47,8 +48,10 @@ class GPIO
         // Motion tracker interrupt pin
         int mtint;     // GPIO20 - pin 38
 
+        LoggerAndDisplay *mlogger = nullptr;
+
     public:
-        void init ();        
+        void init (LoggerAndDisplay*logger);        
         void terminate ();
         void task ();   // Reads all GPIO to update the state of this object
 
