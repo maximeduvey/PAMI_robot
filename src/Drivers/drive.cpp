@@ -258,6 +258,10 @@ void DRIVE::send (int id, unsigned char *data)
 // Similar to the thread function, but meant to be called from the main thread, as part of the task sequencer system
 void DRIVE::task ()
 {
+    // Save odometry
+    left.previous = left.position;
+    right.previous = right.position;
+
     mlogger->logAsPrintf("DRIVE::task\n");
     MotorCmd_t motor_cmd;
     // Send commands to the motors:

@@ -34,3 +34,7 @@
 
 
 #include <ncurses.h>
+
+#define PAMI_ID_ONE 1
+#define PAMI_ID_TWO 2
+#define PAMI_ID_THREE 3

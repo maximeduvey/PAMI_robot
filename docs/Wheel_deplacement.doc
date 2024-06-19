@@ -1,0 +1,14 @@
+
+# This file is meant for informations around the deplacement and motor of the PAMI
+# It's meant to evolve as the informations will get more precise as we learn
+
+The wheel of the PAMI is around 4.1mm (maybe 4)
+To do a full turn it need:
+# Right wheel --- Left Wheel #
+. RPM
+36000 --- 36000
+
+Speed:
+
+In one turn it should do 
+C≈3.14159×4.1≈12.883mm

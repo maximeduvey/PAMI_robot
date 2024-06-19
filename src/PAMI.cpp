@@ -5,14 +5,8 @@
 #include "LoggerAndDisplay.h"
 
 // Default constructor
-PAMI::PAMI ()
-{
-
-}
-PAMI::~PAMI()
-{
-    
-}
+PAMI::PAMI() {}
+PAMI::~PAMI() {}
 
 // Task method of the PAMI object (essentially, time management)
 // Call after the robot's inputs have been sampled
@@ -98,17 +92,21 @@ void PAMI::task_delay ()
             drive.speed (2880, 2050); // PAMI 2 values calibrated, do not change.
         if (id == 3)
             drive.speed (1700, 2880); // PAMI 3 values calibrated, do not change.
+
+        //mDControl.setReady();
     }
 }
 
 void PAMI::task_run ()
 {
+    
     if (io.pin == PIN_PRESENT)
     {
         drive.motors_off ();
         state = PAMI_ARMED;
         return;
     }
+    printf("PAMI::task_run ()\n");
     // TO DO : Wait until the end of match and transition the robot to IDLE state
     if (io.s1 == PIN_PULLED) // test mode, 90 second delay was skipped, they need to be added here
     {
@@ -220,17 +218,15 @@ void PAMI::task_run ()
     // drive.speed (1440, 1440);    // 4 RPS max
     // drive.speed (2880, 2880);    // 4 RPS max
     // drive.move (540000, 540000);  // 15 full turns
-    drive.move (36000, 36000);  // 1 full turns
-    //drive.move (720000, 720000);  // 20 full turns
+    //drive.move (36000, 36000);  // 1 full turns
+    drive.move (720000, 720000);  // 20 full turns
     // drive.move (360000, 360000);  // 10 full turns
     // drive.move (180000, 180000);  // 5 full turns
 
-    // Save odometry
-    drive.left.previous = drive.left.position;
-    drive.right.previous = drive.right.position;
-
     // Run the motors
     drive.task ();
+    printf("PAMI::task_run (end)\n");
+    
 }
 
 
@@ -274,6 +270,7 @@ void PAMI::init (LoggerAndDisplay *logger)
         case '3': id = 3; break;
         // Add a default case for when the hostname is invalid
     }
+    mDControl.setId(id);
     // Get the local IP address (based on example at https://man7.org/linux/man-pages/man3/getifaddrs.3.html)
     struct ifaddrs *ifaddr;
     int family, s;
