@@ -98,7 +98,7 @@ void SX1509::getbus ()
 {
     // Acquire the slave (SX1509 default address is 0x3E)
     if (ioctl(file_i2c, I2C_SLAVE, 0x3E) < 0)
-		LoggerAndDisplay::toreplace_log_and_display(5, 0, "Failed to acquire bus access and/or talk to slave.\n");	//ERROR HANDLING; you can check errno to see what went wrong    
+		mlogger->log_and_display(5, 0, "Failed to acquire bus access and/or talk to slave.\n");	//ERROR HANDLING; you can check errno to see what went wrong    
 }
 
 // Write a register
@@ -109,7 +109,7 @@ void SX1509::set (unsigned char addr, unsigned char data)
     payload[0] = addr;
     payload[1] = data;
     if (write(file_i2c, payload, 2) != 2)		//write() returns the number of bytes actually written, if it doesn't match then an error occurred (e.g. no response from the device)
-		LoggerAndDisplay::toreplace_log_and_display(5, 0, "Failed to write to the i2c bus.\n");
+		mlogger->log_and_display(5, 0, "Failed to write to the i2c bus.\n");
 }
 
 // Read a register
@@ -117,9 +117,9 @@ unsigned char SX1509::get (unsigned char addr)
 {
     unsigned char retval = 0;
     if (write(file_i2c, &addr, 1) != 1)		//write() returns the number of bytes actually written, if it doesn't match then an error occurred (e.g. no response from the device)
-		LoggerAndDisplay::toreplace_log_and_display(5, 0, "Failed to write to the i2c bus.\n");
+		mlogger->log_and_display(5, 0, "Failed to write to the i2c bus.\n");
     if (read(file_i2c, &retval, 1) != 1)		//read() returns the number of bytes actually written, if it doesn't match then an error occurred (e.g. no response from the device)
-		LoggerAndDisplay::toreplace_log_and_display(5, 0, "Failed to read from the i2c bus.\n");
+		mlogger->log_and_display(5, 0, "Failed to read from the i2c bus.\n");
     return retval;
 }
 
@@ -329,12 +329,12 @@ void main_sx ()
 
         // The data register defaults to 0xFF so I should read a 1 on bit 0 and 1 of that register:
         // unsigned char d1 = sxread(REG_DATA_A);
-        // LoggerAndDisplay::toreplace_log_and_display(2, 0, "first read = %i", d1);
+        // LoggerAndDisplay::log_and_display(2, 0, "first read = %i", d1);
         // I read 0x03 which means that indeed both pins are at 1.
 
         // sxwrite(REG_DATA_A, 0);     // Test for T-off control.
 
-        LoggerAndDisplay::toreplace_log_and_display(1, 0, "%i", timer);
+        LoggerAndDisplay::log_and_display(1, 0, "%i", timer);
         refresh ();
         sleep (1);
     }

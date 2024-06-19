@@ -110,11 +110,11 @@ void PAMI::task_run ()
         return;
     }
     // TO DO : Wait until the end of match and transition the robot to IDLE state
-    if (io.s1 == 1) // test mode, 90 second delay was skipped, they need to be added here
+    if (io.s1 == PIN_PULLED) // test mode, 90 second delay was skipped, they need to be added here
     {
         time += 90000000;   // In microseconds
     }
-    if (io.s3 == 1) // Shorter move
+    if (io.s3 == PIN_PULLED) // Shorter move
     {
         // Delay start by one second, and ignore obstacles during that time
         if (time < 91000000)
@@ -220,7 +220,8 @@ void PAMI::task_run ()
     // drive.speed (1440, 1440);    // 4 RPS max
     // drive.speed (2880, 2880);    // 4 RPS max
     // drive.move (540000, 540000);  // 15 full turns
-    drive.move (720000, 720000);  // 20 full turns
+    drive.move (36000, 36000);  // 1 full turns
+    //drive.move (720000, 720000);  // 20 full turns
     // drive.move (360000, 360000);  // 10 full turns
     // drive.move (180000, 180000);  // 5 full turns
 

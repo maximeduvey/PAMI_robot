@@ -20,27 +20,19 @@ LoggerAndDisplay::~LoggerAndDisplay() {}
 /// @param filename if not filename is passed in parameter the filename storing the logs will use the current timestamp
 void LoggerAndDisplay::initLogs(std::string filename /*  = "" */)
 {
-    printf("initLogs \n");
     initscr();
     noecho();
     cbreak();
-    printf("wiill file \n");
     if (filename == "")
     {
-    printf("wiill file A\n");
         filename = "logs/"+Tools::current_timestamp() + ".logs";
     }
-    printf("b ofstrea %s \n", filename.c_str());
     mLog_file = std::ofstream(filename.c_str(), std::ios_base::app);
-    printf("ofstream \n");
     if (!mLog_file)
     {
         mvprintw(0, 0, (filename + " Error opening log file.").c_str());
         throw std::runtime_error("LoggerAndDisplay::Init_Logs() could not create log file:" + filename);
-    } else {
-        mLog_file << "test" << (int)mLog_file.is_open() << std::endl;
-    }
-    printf("init out \n");
+    } 
     //mvprintw(0, 0, ("Logs file created: " + filename).c_str());
 }
 
@@ -62,26 +54,26 @@ void LoggerAndDisplay::log_and_display(int y, int x, const char *format, ...)
     char buffer[256];
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
-    mvprintw(y, x, buffer);
     if (mLog_file.is_open()) {
         mLog_file << "[" << std::to_string(x) << std::to_string(y) <<"] " << buffer << std::endl;
     }
     refresh();
 }
 
-void LoggerAndDisplay::logAsPrintf(const char *format, ...)
+// need to be repared
+void LoggerAndDisplay::logAsPrintf(const char *format)
 {
-
-    va_list args;
+    //printf("logAsPrintf in: %s\n", format);
+/*     va_list args;
     va_start(args, format);
     char buffer[256];
     vsnprintf(buffer, sizeof(buffer), format, args);
-    va_end(args);
-    if (mLog_file.is_open()){
-    mLog_file << buffer << std::endl;
-    }
-    printf(buffer);
-    refresh();
+    va_end(args);*/
+/*     if (mLog_file.is_open()){
+        mLog_file << format ;
+     } */
+   /* printf(buffer);
+    refresh(); */
 }
 
 /// @brief this function will display the common infos of the current PAMI
@@ -116,9 +108,3 @@ void LoggerAndDisplay::display_pami_stats(const PAMI& pami)
     sprintf(str, "%08i", pami.drive.right.position);
     pami.oled.print(str, 11, 2);*/
 }
-
-
-    void LoggerAndDisplay::toreplace_log_and_display(int y, int x, const char *format, ...)
-    {
-
-    }

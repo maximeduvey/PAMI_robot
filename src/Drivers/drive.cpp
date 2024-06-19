@@ -11,6 +11,15 @@
 
 #include "LoggerAndDisplay.h"
 
+DRIVE::DRIVE()
+{
+    mstate.store(DRIVE_STATE::DRIVE_STOPPED);
+}
+
+DRIVE::~DRIVE() {
+
+}
+
 int DRIVE::init (LoggerAndDisplay *logger)
 {
     mlogger = logger;
@@ -249,6 +258,7 @@ void DRIVE::send (int id, unsigned char *data)
 // Similar to the thread function, but meant to be called from the main thread, as part of the task sequencer system
 void DRIVE::task ()
 {
+    mlogger->logAsPrintf("DRIVE::task\n");
     MotorCmd_t motor_cmd;
     // Send commands to the motors:
     motor_cmd.multi_loop_angle_2.cmd = 0xA4;
@@ -297,6 +307,7 @@ void DRIVE::task ()
 
 void DRIVE::motors_on ()  // Motor init function, to be called only once, on transition from "armed" to "delay". Resets odometry.
 {
+    mlogger->logAsPrintf("DRIVE::motors_on\n");
     MotorCmd_t motor_cmd;
     // Turn on the motors ("motor on", 0x88) then reset odometry (0x95)
     motor_cmd.no_param.cmd = 0x88;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
@@ -305,10 +316,12 @@ void DRIVE::motors_on ()  // Motor init function, to be called only once, on tra
     motor_cmd.no_param.cmd = 0x95;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
     send (MOTOR_LEFT, motor_cmd.raw);
     send (MOTOR_RIGHT, motor_cmd.raw); 
+    mstate.store(DRIVE_RUNNING);
 }
 
 void DRIVE::motors_off () // Motor off function, to be called when transitioning towards the idle state
 {
+    mlogger->logAsPrintf("DRIVE::motors_off\n");
     // Send "motor stop" (0x81), then "motor off" (0x81)
     MotorCmd_t motor_cmd;
     // Turn on the motors
@@ -318,6 +331,7 @@ void DRIVE::motors_off () // Motor off function, to be called when transitioning
     motor_cmd.no_param.cmd = 0x80;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
     send (MOTOR_LEFT, motor_cmd.raw);
     send (MOTOR_RIGHT, motor_cmd.raw);
+    mstate.store(DRIVE_STOPPED);
 }
 
 // Sends open-loop power commands to both motors
@@ -621,4 +635,8 @@ void* DRIVE::motion_control_thread_old (void *arg)
     return NULL;
 }
 
+DRIVE::DRIVE_STATE DRIVE::getDriveState() const
+{
+    return mstate.load();
+}
 

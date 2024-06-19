@@ -21,6 +21,8 @@
 #include "Drivers/gpio.hpp"
 #include "Drivers/drive.hpp"
 
+#include "DeplacementControl.h"
+
 // ==== Macros ==========================================
 
 // #define DEBUG_TIMINGS   // Enables shorter delays for debugging
@@ -71,6 +73,7 @@ class PAMI
 
     public: // PAMI propulsion
         DRIVE drive;
+        DeplacementControl mDControl;
 
     public :
         LoggerAndDisplay *mlogger = nullptr;

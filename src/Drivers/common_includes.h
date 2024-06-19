@@ -1,8 +1,8 @@
 #pragma once
 
-/// this header provides common include accross all the ne cessary class
+/// this header provides common include accross all the necessary class
 /// a lot of driver write or read in register, 
-/// this header is hear to prevent header include loop and have a cleaner architecture
+/// this header is here to prevent header include loop and have a cleaner architecture
 
 // Generic headers
 #include <stdio.h>

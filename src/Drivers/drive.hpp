@@ -10,6 +10,7 @@
 #define __PAMI_DRIVE_HPP__
 
 #include "common_includes.h"
+#include <atomic>
 
 // ======= Constants =======================================================================
 
@@ -217,7 +218,16 @@ typedef struct Motor_s
 class LoggerAndDisplay;
 
 class DRIVE
-{
+{   
+    public:
+        enum DRIVE_STATE : uint8_t{
+            DRIVE_STOPPED = 0,
+            DRIVE_RUNNING
+        };
+
+    private :
+        std::atomic<DRIVE_STATE> mstate;
+
     public:
         LoggerAndDisplay *mlogger = nullptr;
 
@@ -235,6 +245,10 @@ class DRIVE
         // Status of the motors
         Motor_t left;
         Motor_t right;
+
+    public:
+        DRIVE();
+        ~DRIVE();
 
     public:     // Thread methods
         static void* motion_control_thread (void *arg);   // Experimental version
@@ -259,6 +273,9 @@ class DRIVE
         void power (signed short l, signed short r);      // Sends open-loop power commands to both motors (left, right)
         void speed (signed long l, signed long r);        // Sends closed-loop speed commands to both motors (left, right)
         void move (long l, long r);             // Sends the motors to specific positions expressed in odometry units
+    
+    DRIVE_STATE getDriveState() const;
+
 
 };
 
