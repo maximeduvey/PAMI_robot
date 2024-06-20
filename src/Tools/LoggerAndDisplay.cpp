@@ -10,6 +10,8 @@
 
 #include <exception>
 
+#define DISABLE_MVPRINTW true
+#define TMP_BUFFER_SIZE 256
 
 //std::ofstream LoggerAndDisplay::mLog_file;
 
@@ -20,19 +22,23 @@ LoggerAndDisplay::~LoggerAndDisplay() {}
 /// @param filename if not filename is passed in parameter the filename storing the logs will use the current timestamp
 void LoggerAndDisplay::initLogs(std::string filename /*  = "" */)
 {
+#ifndef DISABLE_MVPRINTW
     initscr();
     noecho();
     cbreak();
+#endif
     if (filename == "")
     {
         filename = "logs/"+Tools::current_timestamp() + ".logs";
     }
     mLog_file = std::ofstream(filename.c_str(), std::ios_base::app);
+#ifndef DISABLE_MVPRINTW
     if (!mLog_file)
     {
         mvprintw(0, 0, (filename + " Error opening log file.").c_str());
         throw std::runtime_error("LoggerAndDisplay::Init_Logs() could not create log file:" + filename);
     } 
+#endif
     //mvprintw(0, 0, ("Logs file created: " + filename).c_str());
 }
 
@@ -48,10 +54,11 @@ void LoggerAndDisplay::closeLogs()
 // todo: add a mutex for access
 void LoggerAndDisplay::log_and_display(int y, int x, const char *format, ...)
 {
+    return;
     // Prepare the formatted message
     va_list args;
     va_start(args, format);
-    char buffer[256];
+    char buffer[TMP_BUFFER_SIZE];
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
     if (mLog_file.is_open()) {
@@ -66,7 +73,7 @@ void LoggerAndDisplay::logAsPrintf(const char *format)
     //printf("logAsPrintf in: %s\n", format);
 /*     va_list args;
     va_start(args, format);
-    char buffer[256];
+    char buffer[TMP_BUFFER_SIZE];
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);*/
 /*     if (mLog_file.is_open()){
@@ -95,11 +102,11 @@ void LoggerAndDisplay::display_pami_stats(const PAMI& pami)
     // Display some variables for debugging
     // log_and_display(10, 0, "mode[0] = %i - SX_SERVO = %i", pami.sx.mode[0], SX_SERVO);
     // Print motor positions
-    // log_and_display(10, 0, " Left: %d", pami.drive.left.position);
-    // log_and_display(11, 0, "Right: %d", pami.drive.right.position);
+    log_and_display(10, 0, " Left: %d", pami.drive.left.position);
+    log_and_display(11, 0, "Right: %d", pami.drive.right.position);
     // log_and_display(10, 0, "long: %i bytes", sizeof(long)); // Verified that a long is 4 bytes on Raspi.
-    log_and_display(10, 0, "batt: %f V", (float) pami.drive.left.motor_state_1.motor_state_1.voltage / 100.0);
-    log_and_display(11, 0, "speeds %i | %i", pami.drive.left.speed, pami.drive.right.speed);
+    log_and_display(12, 0, "batt: %f V", (float) pami.drive.left.motor_state_1.motor_state_1.voltage / 100.0);
+    log_and_display(13, 0, "speeds %i | %i", pami.drive.left.speed, pami.drive.right.speed);
     
     refresh();
     // odometry on OLED

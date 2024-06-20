@@ -5,14 +5,8 @@
 #include "LoggerAndDisplay.h"
 
 // Default constructor
-PAMI::PAMI ()
-{
-
-}
-PAMI::~PAMI()
-{
-    
-}
+PAMI::PAMI() {}
+PAMI::~PAMI() {}
 
 // Task method of the PAMI object (essentially, time management)
 // Call after the robot's inputs have been sampled
@@ -39,8 +33,8 @@ void PAMI::task_idle ()
     // Default servo positions
     if (0)
     {
-        sx.move(RIGHT_SERVO, RIGHT_AHEAD);
-        sx.move(LEFT_SERVO, LEFT_AHEAD);
+/*         sx.move(RIGHT_SERVO, RIGHT_AHEAD);
+        sx.move(LEFT_SERVO, LEFT_AHEAD); */
     }
     // TO DO : wait for all conditions necessary to transition to ARMED state
     // - Motor power must be enabled (meaning emergency stop is armed)
@@ -54,22 +48,23 @@ void PAMI::task_idle ()
 void PAMI::task_armed ()
 {
         // Default servo positions
-    sx.move(RIGHT_SERVO, RIGHT_AHEAD);
-    sx.move(LEFT_SERVO, LEFT_AHEAD);
+/*     sx.move(RIGHT_SERVO, RIGHT_AHEAD);
+    sx.move(LEFT_SERVO, LEFT_AHEAD); */
     // TO DO : wait for the pin to get pulled, then transition to DELAY state
     if (io.pin == PIN_PULLED)
     {
         timespec_get(&tzero, TIME_UTC);        // Get T-Zero for this run
         drive.motors_on ();         // turn on the motors and reset odometry
         state = PAMI_DELAY;
+       // mDControl.goForward(10000);
     }
 }
 
 void PAMI::task_delay ()
 {
     // Default servo positions
-    sx.move(RIGHT_SERVO, RIGHT_AHEAD);
-    sx.move(LEFT_SERVO, LEFT_AHEAD);
+/*     sx.move(RIGHT_SERVO, RIGHT_AHEAD);
+    sx.move(LEFT_SERVO, LEFT_AHEAD); */
     // TO DO :
     // - Wait 90 seconds and transition to RUN state
     // - If the pin is placed back on, transition immediately to ARMED state
@@ -98,6 +93,8 @@ void PAMI::task_delay ()
             drive.speed (2880, 2050); // PAMI 2 values calibrated, do not change.
         if (id == 3)
             drive.speed (1700, 2880); // PAMI 3 values calibrated, do not change.
+
+        //mDControl.setReady();
     }
 }
 
@@ -109,6 +106,11 @@ void PAMI::task_run ()
         state = PAMI_ARMED;
         return;
     }
+    printf("PAMI::task_run ()\n");
+   
+/*     mDControl.goForward(10000);
+    return; */
+   
     // TO DO : Wait until the end of match and transition the robot to IDLE state
     if (io.s1 == PIN_PULLED) // test mode, 90 second delay was skipped, they need to be added here
     {
@@ -142,7 +144,7 @@ void PAMI::task_run ()
     {
         if (io.side == 1)   // "YELLOW" side -> ignore left side sensor (ToR 1)
         {   
-            sx.move(LEFT_SERVO, LEFT_DEPLOYED);
+            //sx.move(LEFT_SERVO, LEFT_DEPLOYED);
             if ((io.tor2 == 0) && (time < TIMING_A1))    // only ack the obstacle until the 92th second
             {
                 drive.motors_off ();
@@ -151,7 +153,7 @@ void PAMI::task_run ()
         }
         else                // "BLUE" side -> ignore right side sensor (ToR 2)
         {
-            sx.move(RIGHT_SERVO, RIGHT_DEPLOYED);
+            //sx.move(RIGHT_SERVO, RIGHT_DEPLOYED);
             if ((io.tor1 == 0) && (time < TIMING_A1))    // only ack the obstacle until the 92th second
             {
                 drive.motors_off ();
@@ -220,17 +222,15 @@ void PAMI::task_run ()
     // drive.speed (1440, 1440);    // 4 RPS max
     // drive.speed (2880, 2880);    // 4 RPS max
     // drive.move (540000, 540000);  // 15 full turns
-    drive.move (36000, 36000);  // 1 full turns
-    //drive.move (720000, 720000);  // 20 full turns
+    //drive.move (36000, 36000);  // 1 full turns
+    drive.move (720000, 720000);  // 20 full turns
     // drive.move (360000, 360000);  // 10 full turns
     // drive.move (180000, 180000);  // 5 full turns
 
-    // Save odometry
-    drive.left.previous = drive.left.position;
-    drive.right.previous = drive.right.position;
-
     // Run the motors
     drive.task ();
+    printf("PAMI::task_run (end)\n");
+    
 }
 
 
@@ -265,7 +265,7 @@ void PAMI::init (LoggerAndDisplay *logger)
 {
     mlogger = logger;
     state = PAMI_BIST;      // PAMI always starts by testing itself
-    gethostname (hostname, 10);    // Determine the local hostname
+    gethostname (hostname, HOST_NAME_LEN);    // Determine the local hostname
     char last = hostname[strlen(hostname) - 1];
     switch (last)
     {
@@ -274,6 +274,8 @@ void PAMI::init (LoggerAndDisplay *logger)
         case '3': id = 3; break;
         // Add a default case for when the hostname is invalid
     }
+    mDControl.setId(id);
+    printf("PAMI::init(%d)", mDControl.mId);
     // Get the local IP address (based on example at https://man7.org/linux/man-pages/man3/getifaddrs.3.html)
     struct ifaddrs *ifaddr;
     int family, s;

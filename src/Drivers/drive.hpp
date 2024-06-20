@@ -22,11 +22,13 @@
 #define LEFT_DIRECTION (1)
 #define RIGHT_DIRECTION (-(LEFT_DIRECTION))
 
+#define PAYLOAD_SIZE 8
+
 // ======= Motor Structures ================================================================
 
 typedef union MotorCmd_u
 {
-    unsigned char raw[8];   // 8-byte payload of a CAN message to one or both motors
+    unsigned char raw[PAYLOAD_SIZE];   // 8-byte payload of a CAN message to one or both motors
     // For 0x80 "motor off" / 0x88 "motor on" / 0x81 "motor stop" /
     //  0x30 "read PID parameters" / 0x33 "read acceleration" / 0x90 "read encoder" /
     //  0x19 "write current position to ROM as the motor zero point" /

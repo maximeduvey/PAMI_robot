@@ -8,6 +8,8 @@
 #ifndef __SSD1306_OLED_DRIVER__
 #define __SSD1306_OLED_DRIVER__
 
+#define FRAME_BUFFER_SIZE 1024
+
 // The code was originally written for STM32, quick porting requires some typedefs
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -19,7 +21,7 @@ class OLED
 {
     public:
         int file_i2c;                   // I2C bus handle
-        uint8_t frame_buffer[513];      // 512 bytes of pixel data for 128x32. Additional byte for the "C/D" bit
+        uint8_t frame_buffer[FRAME_BUFFER_SIZE];      // 512 bytes of pixel data for 128x32. Additional byte for the "C/D" bit
         LoggerAndDisplay *mlogger = nullptr;
 
     public:

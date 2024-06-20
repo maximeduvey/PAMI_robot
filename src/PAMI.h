@@ -41,6 +41,7 @@
 #define TIMING_A1   (92000000)
 #define TIMING_A2   (92500000)
 
+#define HOST_NAME_LEN 10
 // ==== Classes =========================================
 class LoggerAndDisplay; // predefine logger
 
@@ -56,7 +57,7 @@ class PAMI
     };
 
     public: // PAMI Identifaction
-        char hostname[10];    // Local hostname (no need to make it long, it's either "canpi3" or "pami1")
+        char hostname[HOST_NAME_LEN];    // Local hostname (no need to make it long, it's either "canpi3" or "pami1")
         int id;         // PAMI number (last digit of the hostname: 1, 2 or 3)
         char IP[NI_MAXHOST];     // IP address, as string
 

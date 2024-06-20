@@ -11,3 +11,5 @@ This project is to manage the code and structure of the litle robot called palmi
 
 ### OLED 
 # est l'écran sur la raspberry pi 0 v2
+
+sudo ./pami > tmp.log 2>&1

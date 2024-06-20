@@ -8,6 +8,8 @@
 #include <iostream>
 #include <cstring>
 
+#define TIMESTAMP_BUFFER_SIZE 20
+
 class Tools
 {
 private:
