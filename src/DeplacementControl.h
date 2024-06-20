@@ -33,10 +33,15 @@ class DeplacementControl
 
         DCS_UNKNOW // should not happen
     };
+    
+    int mId; // represent the id of the PAMI
 private:
     int mId; // represent the id of the PAMI
     DRIVE mDrive;
     std::atomic<DeplacementControlState> mState;
+
+    std::atomic<bool> mEnd;
+    std::atomic<bool> mIsRunning;
     /* data */
 
     double mLength;       // Length covered by the motor

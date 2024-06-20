@@ -7,7 +7,10 @@
 DeplacementControl::DeplacementControl()
     : mId(0), mMotorSpeed(0), mLength(0.0), mTargetLength(0.0)
 {
+    printf("DeplacementControl::DeplacementControl()\n");
     mState.store(DeplacementControlState::DCS_IDLE);
+    mEnd.store(true);
+    mIsRunning.store(false);
 }
 
 DeplacementControl::~DeplacementControl()
@@ -15,7 +18,11 @@ DeplacementControl::~DeplacementControl()
 }
 
 void DeplacementControl::stop()
-{
+{   
+    printf("DeplacementControl::STOPPING()\n");
+    mEnd.store(true);
+    mIsRunning.store(false);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     exit(1);
 }
 
@@ -28,12 +35,19 @@ void DeplacementControl::setReady()
 
 void DeplacementControl::goForward(int lenght)
 {
+    printf("DeplacementControl::goForward()\n");
     this->mTargetLength = mTargetLength;
     mLength = 0.0;
-    if (mDrive.getDriveState() != DRIVE::DRIVE_STATE::DRIVE_RUNNING)
+    if (mIsRunning.load() != true)
     {
-        mDrive.motors_on();
-        std::thread(&DeplacementControl::LoopManageMotor, this).detach();
+        mIsRunning.store(true);
+        printf("DeplacementControl::goForward(setReady)\n");
+        setReady();
+        
+        std::thread(&DeplacementControl::loop_motor_drive, this).detach();
+        printf("DeplacementControl::goForward(done)\n");
+    } else {
+        printf("DeplacementControl::goForward(Already started)\n");
     }
 }
 
@@ -62,7 +76,7 @@ void DeplacementControl::LoopManageMotor()
     }
 }
 
-void DeplacementControl::testRun(int durationSeconds)
+/* void DeplacementControl::testRun(int durationSeconds)
 {
     double testmTargetLength = mMotorSpeed * durationSeconds;
     // std::cout << "Starting test run for " << durationSeconds << " seconds..." << std::endl;
@@ -70,7 +84,7 @@ void DeplacementControl::testRun(int durationSeconds)
     goForward(testmTargetLength);
     std::this_thread::sleep_for(std::chrono::seconds(durationSeconds));
     stop();
-}
+} */
 
 ////////////////////
 /// Odometry FCT ///
@@ -100,23 +114,39 @@ void DeplacementControl::getDirectionFactor(signed long long &delta_left, signed
 /// @brief This function is meant to be called in loop and 
 void DeplacementControl::loop_motor_drive()
 {
-    signed long long delta_left = 0;
-    signed long long delta_right = 0;
 
-    getDelta(delta_left, delta_right);
-    getDirectionFactor(delta_left, delta_right);
+    printf("DeplacementControl::metId(%d)\n", this->mId);
+    int nbr = 20;
+    int current = 0;
+    while (mEnd.load() != true) {
+        signed long long delta_left = 0;
+        signed long long delta_right = 0;
 
-    int correction = 5; // 5 is a known-good value
-    if (delta_left > delta_right)
-    {
-        mDrive.left.speed -= correction;
-        mDrive.right.speed += correction;
+        getDelta(delta_left, delta_right);
+        getDirectionFactor(delta_left, delta_right);
+
+        int correction = 5; // 5 is a known-good value
+        if (delta_left > delta_right)
+        {
+            mDrive.left.speed -= correction;
+            mDrive.right.speed += correction;
+        }
+        else if (delta_left < delta_right)
+        {
+            mDrive.left.speed += correction;
+            mDrive.right.speed -= correction;
+        }
+        mDrive.move(36000, 36000);
+        mDrive.task();
+        printf("DeplacementControl::loop_motor_drive()\n");
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (++current > nbr){
+            mEnd.store(true);
+            printf("DeplacementControl::loop_motor_drive(end reached)\n");
+        }
     }
-    else if (delta_left < delta_right)
-    {
-        mDrive.left.speed += correction;
-        mDrive.right.speed -= correction;
-    }
+    mIsRunning.store(false);
 }
 
 /// @brief This function will set the arbitrary default value for the motor speed depending which PAMI you are
@@ -126,6 +156,8 @@ void DeplacementControl::loop_motor_drive()
 /// @param right_motor
 void DeplacementControl::getDefaultMotorSpeed(signed long &left_motor, signed long &right_motor)
 {
+
+    printf("DeplacementControl::getDefaultMotorSpeed(%d)\n", mId);
     switch (mId)
     {
     case PAMI_ID_ONE:
@@ -148,5 +180,7 @@ void DeplacementControl::getDefaultMotorSpeed(signed long &left_motor, signed lo
 void DeplacementControl::setId(int id)
 {
     mId = id;
+
+    printf("DeplacementControl::setId(%d-%d)\n", id, mId);
 }
 

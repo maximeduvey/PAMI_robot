@@ -63,9 +63,9 @@ void DRIVE::stop ()       // Kill the propulsion thread, close the CAN sockets
 void DRIVE::can_send_motor (int id, unsigned char *data)
 {
 	frame.can_id = id;
-	frame.can_dlc = 8;
+	frame.can_dlc = PAYLOAD_SIZE;
 	int k;
-	for (k=0; k<8; k++)
+	for (k=0; k<PAYLOAD_SIZE; k++)
 		frame.data[k] = data[k];	
 
     // original code
@@ -152,36 +152,36 @@ int DRIVE::can_read_reply_frame (int noblock = 1)
         case 0xA7:
         case 0xA8:
         case 0x9C:  // open loop reply
-            memcpy (m->open_loop_reply.raw, f.data, 8);
+            memcpy (m->open_loop_reply.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x30:
         case 0x31:
         case 0x32:  // PID coefficients reply
-            memcpy (m->pid_coefficients.raw, f.data, 8);
+            memcpy (m->pid_coefficients.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x33:
         case 0x34:  // acceleration reply
-            memcpy (m->acceleration.raw, f.data, 8);
+            memcpy (m->acceleration.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x90:  // encoder reply
-            memcpy (m->encoder.raw, f.data, 8);
+            memcpy (m->encoder.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x92:  // cumulative position
-            memcpy (&m->position, f.data, 8);
-            m->position = m->position >> 8;     // The LSB is the command byte, not part of the 56-bit position
+            memcpy (&m->position, f.data, PAYLOAD_SIZE);
+            m->position = m->position >> PAYLOAD_SIZE;     // The LSB is the command byte, not part of the 56-bit position
             break;
         case 0x94:  // rotor angle reply
-            memcpy (m->rotor_angle.raw, f.data, 8);
+            memcpy (m->rotor_angle.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x9A:
         case 0x9B:  // motor state 1
-            memcpy (m->motor_state_1.raw, f.data, 8);
+            memcpy (m->motor_state_1.raw, f.data, PAYLOAD_SIZE);
             // Voltage presents an alignment issue and must be decoded explicitly
             // unsigned short v = (m->motor_state_1.motor_state_1.voltage[1] << 8) | m->motor_state_1.motor_state_1.voltage[0];
             // m->voltage = (float) v / 10;
             break;
         case 0x9D:  // motor state 3
-            memcpy (m->motor_state_3.raw, f.data, 8);
+            memcpy (m->motor_state_3.raw, f.data, PAYLOAD_SIZE);
             break;
         default:    // replies that don't match anything are discarded
             break;
@@ -194,14 +194,17 @@ int DRIVE::can_read_reply_frame (int noblock = 1)
 // This is because the LK Tech servos REALLY don't like receiving commands before their replies are acknowledged
 void DRIVE::send (int id, unsigned char *data)
 {
+    printf(" DRIVE::send()\n");
     // Build the command frame, and send it
 	frame.can_id = id;
-	frame.can_dlc = 8;
-	for (int k=0; k<8; k++) frame.data[k] = data[k];
+	frame.can_dlc = PAYLOAD_SIZE;
+	for (int k=0; k < PAYLOAD_SIZE; k++) frame.data[k] = data[k];
 	write(sock, &frame, sizeof(struct can_frame));
     // Get the motor's reply
     struct can_frame f;
+    printf(" DRIVE::send(A)\n");
     read(sock, &f, sizeof(struct can_frame));
+    printf(" DRIVE::send(B)\n");
     // Process the received frame
     // Step 1 - determine which of the robot's motor structures to store the message into, based on ID
     Motor_t *m = 0;
@@ -219,36 +222,36 @@ void DRIVE::send (int id, unsigned char *data)
         case 0xA7:
         case 0xA8:
         case 0x9C:  // open loop reply
-            memcpy (m->open_loop_reply.raw, f.data, 8);
+            memcpy (m->open_loop_reply.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x30:
         case 0x31:
         case 0x32:  // PID coefficients reply
-            memcpy (m->pid_coefficients.raw, f.data, 8);
+            memcpy (m->pid_coefficients.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x33:
         case 0x34:  // acceleration reply
-            memcpy (m->acceleration.raw, f.data, 8);
+            memcpy (m->acceleration.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x90:  // encoder reply
-            memcpy (m->encoder.raw, f.data, 8);
+            memcpy (m->encoder.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x92:  // cumulative position
-            memcpy (&m->position, f.data, 8);
-            m->position = m->position >> 8;     // The LSB is the command byte, not part of the 56-bit position
+            memcpy (&m->position, f.data, PAYLOAD_SIZE);
+            m->position = m->position >> PAYLOAD_SIZE;     // The LSB is the command byte, not part of the 56-bit position
             break;
         case 0x94:  // rotor angle reply
-            memcpy (m->rotor_angle.raw, f.data, 8);
+            memcpy (m->rotor_angle.raw, f.data, PAYLOAD_SIZE);
             break;
         case 0x9A:
         case 0x9B:  // motor state 1
-            memcpy (m->motor_state_1.raw, f.data, 8);
+            memcpy (m->motor_state_1.raw, f.data, PAYLOAD_SIZE);
             // Voltage presents an alignment issue and must be decoded explicitly
             // unsigned short v = (m->motor_state_1.motor_state_1.voltage[1] << 8) | m->motor_state_1.motor_state_1.voltage[0];
             // m->voltage = (float) v / 10;
             break;
         case 0x9D:  // motor state 3
-            memcpy (m->motor_state_3.raw, f.data, 8);
+            memcpy (m->motor_state_3.raw, f.data, PAYLOAD_SIZE);
             break;
         default:    // replies that don't match anything are discarded
             break;
@@ -269,7 +272,7 @@ void DRIVE::task ()
     motor_cmd.multi_loop_angle_2.speedlimit = (unsigned short) left.speed;
     motor_cmd.multi_loop_angle_2.angle = (signed long) (LEFT_DIRECTION * left.destination);
     send (MOTOR_LEFT, motor_cmd.raw);
-    for (int i = 1; i < 8; i++) motor_cmd.raw[i] = 0;
+    for (int i = 1; i < PAYLOAD_SIZE; i++) motor_cmd.raw[i] = 0;
     motor_cmd.multi_loop_angle_2.cmd = 0xA4;
     motor_cmd.multi_loop_angle_2.speedlimit = (unsigned short) right.speed;
     motor_cmd.multi_loop_angle_2.angle = (signed long) (RIGHT_DIRECTION * right.destination);
@@ -296,12 +299,12 @@ void DRIVE::task ()
     */
 
     // Read motor status and odometry
-    for (int i = 1; i < 8; i++) motor_cmd.raw[i] = 0;
+    for (int i = 1; i < PAYLOAD_SIZE; i++) motor_cmd.raw[i] = 0;
     motor_cmd.no_param.cmd = 0x9A;  // Read status 1
     send (MOTOR_LEFT, motor_cmd.raw);   
     send (MOTOR_RIGHT, motor_cmd.raw);
 
-    for (int i = 1; i < 8; i++) motor_cmd.raw[i] = 0;
+    for (int i = 1; i < PAYLOAD_SIZE; i++) motor_cmd.raw[i] = 0;
     motor_cmd.no_param.cmd = 0x92;  // Read cumulative position
     send (MOTOR_LEFT, motor_cmd.raw);   
     send (MOTOR_RIGHT, motor_cmd.raw);
@@ -311,7 +314,6 @@ void DRIVE::task ()
 
 void DRIVE::motors_on ()  // Motor init function, to be called only once, on transition from "armed" to "delay". Resets odometry.
 {
-    mlogger->logAsPrintf("DRIVE::motors_on\n");
     MotorCmd_t motor_cmd;
     // Turn on the motors ("motor on", 0x88) then reset odometry (0x95)
     motor_cmd.no_param.cmd = 0x88;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
@@ -319,13 +321,12 @@ void DRIVE::motors_on ()  // Motor init function, to be called only once, on tra
     send (MOTOR_RIGHT, motor_cmd.raw);
     motor_cmd.no_param.cmd = 0x95;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
     send (MOTOR_LEFT, motor_cmd.raw);
-    send (MOTOR_RIGHT, motor_cmd.raw); 
+    send (MOTOR_RIGHT, motor_cmd.raw);
     mstate.store(DRIVE_RUNNING);
 }
 
 void DRIVE::motors_off () // Motor off function, to be called when transitioning towards the idle state
 {
-    mlogger->logAsPrintf("DRIVE::motors_off\n");
     // Send "motor stop" (0x81), then "motor off" (0x81)
     MotorCmd_t motor_cmd;
     // Turn on the motors
@@ -453,20 +454,20 @@ void* DRIVE::motion_control_thread (void *arg)
         // Did the power commands change ? If so, send new commands to the motors
         if (drive->left.power != power_left)
         {
-            for (int i = 1; i < 8; i++) motor_cmd.raw[i] = 0;   // Clear the frame buffer, just in case the motors don't like non-zero data in unused fields. (starting at 1 because 0 is the command, there's always going to be something in there)
+            for (int i = 1; i < PAYLOAD_SIZE; i++) motor_cmd.raw[i] = 0;   // Clear the frame buffer, just in case the motors don't like non-zero data in unused fields. (starting at 1 because 0 is the command, there's always going to be something in there)
             motor_cmd.open_loop.cmd = 0xA0;
             motor_cmd.open_loop.power = power_left = drive->left.power;   // Update the power setting and prepare to send
             drive->send (MOTOR_LEFT, motor_cmd.raw);
         }
         if (drive->right.power != power_right)
         {
-            for (int i = 1; i < 8; i++) motor_cmd.raw[i] = 0;
+            for (int i = 1; i < PAYLOAD_SIZE; i++) motor_cmd.raw[i] = 0;
             motor_cmd.open_loop.cmd = 0xA0;
             motor_cmd.open_loop.power = power_right = drive->right.power;   // Update the power setting and prepare to send
             drive->send (MOTOR_RIGHT, motor_cmd.raw);
         }
         // Read motor status
-        for (int i = 1; i < 8; i++) motor_cmd.raw[i] = 0;
+        for (int i = 1; i < PAYLOAD_SIZE; i++) motor_cmd.raw[i] = 0;
         motor_cmd.no_param.cmd = 0x92;  // Read cumulative position
         drive->send (MOTOR_LEFT, motor_cmd.raw);
         drive->send (MOTOR_RIGHT, motor_cmd.raw);
@@ -475,7 +476,7 @@ void* DRIVE::motion_control_thread (void *arg)
     // Clean-up before termination : turn off the motors, etc...
     // Note that I don't clear previous CAN message payloads. I don't know if the motors care
     motor_cmd.no_param.cmd = 0x81;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
-    for (int i = 1; i < 8; i++) // (starting at 1 because 0 is the command, there's always going to be something in there)
+    for (int i = 1; i < PAYLOAD_SIZE; i++) // (starting at 1 because 0 is the command, there's always going to be something in there)
         motor_cmd.raw[i] = 0;   //  Clean the rest of the payload, just in case.
     drive->send (MOTOR_LEFT, motor_cmd.raw);
     drive->send (MOTOR_RIGHT, motor_cmd.raw);
@@ -563,7 +564,7 @@ void* DRIVE::motion_control_thread_old (void *arg)
     // Clean-up before termination : turn off the motors, etc...
     // Note that I don't clear previous CAN message payloads. I don't know if the motors care
     motor_cmd.no_param.cmd = 0x81;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
-    for (int i = 1; i < 8; i++)
+    for (int i = 1; i < PAYLOAD_SIZE; i++)
         motor_cmd.raw[i] = 0;   //  Clean the rest of the payload, just in case.
     drive->can_send_motor (MOTOR_LEFT, motor_cmd.raw);
     drive->can_send_motor (MOTOR_RIGHT, motor_cmd.raw);

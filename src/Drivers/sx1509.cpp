@@ -53,7 +53,7 @@
 
 
 
-
+#define PIN_SX_SERVO 15
 
 // Setup the I2C bus controller for talking to the SX1509
 void SX1509::init (int handle, LoggerAndDisplay *logger)
@@ -62,7 +62,7 @@ void SX1509::init (int handle, LoggerAndDisplay *logger)
     // DEBUG - FORCING PIN MODES - for some reason, doing it before calling this method fails to do anything
     mode[0] = SX_SERVO;
     // mode[4] = SX_SERVO;
-    mode[15] = SX_SERVO;
+    mode[PIN_SX_SERVO] = SX_SERVO;
 
     // Save the file handle
 	file_i2c = handle;
@@ -132,6 +132,7 @@ void SX1509::setup (int pin, unsigned char pinmode)
 // Sets the position of a servo from 0 to 100 %
 void SX1509::move (int pin, unsigned int pinratio)
 {
+    printf("SX1509::move(%d)\n", pinratio);
     ratio[pin % 16] = pinratio;
 }
 

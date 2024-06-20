@@ -199,9 +199,9 @@ void OLED::init(int handle, LoggerAndDisplay *logger)
 	// Save the file handle
 	file_i2c = handle;
     // Frame buffer init
+	return;
     frame_buffer[0] = 0x40; // Co == 0, D/C == 1 => 0100_0000
-    for (int i = 1; i < 1025; i++)
-        frame_buffer[i] = 0;    // clear the frame buffer
+	memset(frame_buffer, '\0', FRAME_BUFFER_SIZE);
 	// Acquire the slave (OLED default address is 0x3C)
     if (ioctl(file_i2c, I2C_SLAVE, 0x3C) < 0)
 		mlogger->log_and_display(5, 0, "Failed to acquire bus access and/or talk to slave.\n");	//ERROR HANDLING; you can check errno to see what went wrong
