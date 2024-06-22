@@ -8,6 +8,7 @@ DeplacementControl::DeplacementControl()
     : mId(0), mMotorSpeed(0), mLength(0.0), mTargetLength(0.0)
 {
     printf("DeplacementControl::DeplacementControl()\n");
+    mDrive = new DRIVE();
     mState.store(DeplacementControlState::DCS_IDLE);
     mEnd.store(true);
     mIsRunning.store(false);
@@ -18,7 +19,7 @@ DeplacementControl::~DeplacementControl()
 }
 
 void DeplacementControl::stop()
-{   
+{
     printf("DeplacementControl::STOPPING()\n");
     mEnd.store(true);
     mIsRunning.store(false);
@@ -29,24 +30,34 @@ void DeplacementControl::stop()
 /// @brief Is called before starting to move, it set motor to a ready state and set spee
 void DeplacementControl::setReady()
 {
-    mDrive.motors_on();
-    getDefaultMotorSpeed(mDrive.left.speed, mDrive.right.speed);
+    printf("DeplacementControl::setReady()\n");
+    // mDrive->motors_off();
+    // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    printf("DeplacementControl::setReady(A)\n");
+
+    if (mDrive->getDriveState() != DeplacementControl::DCS_RUNNING)
+    {
+        mDrive->motors_on();
+        printf("DeplacementControl::setReady(B)\n");
+    }
+    getDefaultMotorSpeed(mDrive->left.speed, mDrive->right.speed);
+    printf("DeplacementControl::setReady() Ready\n");
 }
 
 void DeplacementControl::goForward(int lenght)
 {
-    printf("DeplacementControl::goForward()\n");
+    printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
     this->mTargetLength = mTargetLength;
     mLength = 0.0;
     if (mIsRunning.load() != true)
     {
         mIsRunning.store(true);
-        printf("DeplacementControl::goForward(setReady)\n");
         setReady();
-        
         std::thread(&DeplacementControl::loop_motor_drive, this).detach();
-        printf("DeplacementControl::goForward(done)\n");
-    } else {
+        printf("DeplacementControl::goForward B (%d)\n", mIsRunning.load());
+    }
+    else
+    {
         printf("DeplacementControl::goForward(Already started)\n");
     }
 }
@@ -55,13 +66,13 @@ void DeplacementControl::goForward(int lenght)
 /// forward, turn to the left, forward (touch flower)
 void DeplacementControl::startStrat_simpleLinesToFlower()
 {
-
 }
 
 void DeplacementControl::LoopManageMotor()
 {
+    printf("DeplacementControl::LoopManageMotor()\n");
     auto startTime = std::chrono::high_resolution_clock::now();
-    while (mDrive.getDriveState() == DRIVE::DRIVE_STATE::DRIVE_RUNNING &&
+    while (mDrive->getDriveState() == DRIVE::DRIVE_STATE::DRIVE_RUNNING &&
            mLength < mTargetLength)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -97,8 +108,8 @@ void DeplacementControl::LoopManageMotor()
 /// @return return the absolute difference
 int DeplacementControl::getDelta(signed long long &delta_left, signed long long &delta_right)
 {
-    delta_left = mDrive.left.position - mDrive.left.previous;
-    delta_right = mDrive.right.position - mDrive.right.previous;
+    delta_left = mDrive->left.position - mDrive->left.previous;
+    delta_right = mDrive->right.position - mDrive->right.previous;
     int delta = abs(delta_left - delta_right);
     return delta;
 }
@@ -111,14 +122,15 @@ void DeplacementControl::getDirectionFactor(signed long long &delta_left, signed
     /// right now for the test we do straight line
 }
 
-/// @brief This function is meant to be called in loop and 
+/// @brief This function is meant to be called in loop and
 void DeplacementControl::loop_motor_drive()
 {
-
-    printf("DeplacementControl::metId(%d)\n", this->mId);
+    printf("DeplacementControl::loop_motor_drive(%d)\n", this->mId);
     int nbr = 20;
     int current = 0;
-    while (mEnd.load() != true) {
+    mEnd.store(false);
+/*     while (mEnd.load() != true)
+    { */
         signed long long delta_left = 0;
         signed long long delta_right = 0;
 
@@ -128,24 +140,26 @@ void DeplacementControl::loop_motor_drive()
         int correction = 5; // 5 is a known-good value
         if (delta_left > delta_right)
         {
-            mDrive.left.speed -= correction;
-            mDrive.right.speed += correction;
+            mDrive->left.speed -= correction;
+            mDrive->right.speed += correction;
         }
         else if (delta_left < delta_right)
         {
-            mDrive.left.speed += correction;
-            mDrive.right.speed -= correction;
+            mDrive->left.speed += correction;
+            mDrive->right.speed -= correction;
         }
-        mDrive.move(36000, 36000);
-        mDrive.task();
+        mDrive->move(DEFAULT_ONE_FULL_TURN_RPM, -DEFAULT_ONE_FULL_TURN_RPM);
+        mDrive->task();
         printf("DeplacementControl::loop_motor_drive()\n");
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (++current > nbr){
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        if (++current > nbr)
+        {
             mEnd.store(true);
             printf("DeplacementControl::loop_motor_drive(end reached)\n");
         }
-    }
+    //}
+    printf("DeplacementControl::loop_motor_drive(quitting)\n");
     mIsRunning.store(false);
 }
 
@@ -156,7 +170,6 @@ void DeplacementControl::loop_motor_drive()
 /// @param right_motor
 void DeplacementControl::getDefaultMotorSpeed(signed long &left_motor, signed long &right_motor)
 {
-
     printf("DeplacementControl::getDefaultMotorSpeed(%d)\n", mId);
     switch (mId)
     {
@@ -177,10 +190,17 @@ void DeplacementControl::getDefaultMotorSpeed(signed long &left_motor, signed lo
     }
 }
 
+/// @brief  This set drive is to have the same Object between different part
+/// it's mainly for the transition perido where we have both the old Pami logic to directly pilot the drive
+/// and the DeplacementControl taking over
+/// @param drive
+void DeplacementControl::setDrive(DRIVE *drive)
+{
+    mDrive = drive;
+}
+
 void DeplacementControl::setId(int id)
 {
     mId = id;
-
     printf("DeplacementControl::setId(%d-%d)\n", id, mId);
 }
-

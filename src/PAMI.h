@@ -62,7 +62,7 @@ class PAMI
         char IP[NI_MAXHOST];     // IP address, as string
 
     public: // PAMI State
-        PAMI_STATE state;      // PAMI state machine current state
+        PAMI_STATE pState;      // PAMI state machine current state
         GPIO io;        // The discrete GPIO (inputs) of the PAMI mainboard
         struct timespec tzero;     // System time when the pin was pulled (causing a state transition from ARMED to DELAY)
         unsigned int time;      // Time in microseconds since the pin was pulled

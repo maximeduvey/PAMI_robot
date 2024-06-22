@@ -6,6 +6,8 @@
 
 */
 
+#define DEBUGLOG true
+
 #include "drive.hpp"
 #include <errno.h>
 
@@ -13,6 +15,7 @@
 
 DRIVE::DRIVE()
 {
+    printf("DRIVE::DRIVE()\n");
     mstate.store(DRIVE_STATE::DRIVE_STOPPED);
 }
 
@@ -22,6 +25,7 @@ DRIVE::~DRIVE() {
 
 int DRIVE::init (LoggerAndDisplay *logger)
 {
+    if (DEBUGLOG) printf("DRIVE::init()\n");
     mlogger = logger;
     int retval = 0;     // Nominal return value
     // Open CAN socket
@@ -49,12 +53,14 @@ int DRIVE::init (LoggerAndDisplay *logger)
 
 void DRIVE::start ()            // Start the motor control thread
 {
+    if (DEBUGLOG) printf("DRIVE::start()\n");
     kill = 0;
     pthread_create(&motor_thread, NULL, motion_control_thread, this);
 }
 
 void DRIVE::stop ()       // Kill the propulsion thread, close the CAN sockets
 {
+    if (DEBUGLOG) printf("DRIVE::stop()\n");
     kill = 1;
     pthread_join(motor_thread, NULL);   // Wait for the thread to end
 }
@@ -62,6 +68,7 @@ void DRIVE::stop ()       // Kill the propulsion thread, close the CAN sockets
 // Simple "send command to motor" function
 void DRIVE::can_send_motor (int id, unsigned char *data)
 {
+    if (DEBUGLOG) printf("DRIVE::can_send_motor(%d)\n", id);
 	frame.can_id = id;
 	frame.can_dlc = PAYLOAD_SIZE;
 	int k;
@@ -84,6 +91,7 @@ void DRIVE::can_send_motor (int id, unsigned char *data)
 int DRIVE::can_read_reply_frame (int noblock = 1)
 {
 
+    if (DEBUGLOG) printf("DRIVE::can_read_reply_frame()\n");
     // static int cnt = 0;
     //mlogger->log_and_display(11, 0, "%i", cnt++);
     // refresh ();
@@ -194,7 +202,7 @@ int DRIVE::can_read_reply_frame (int noblock = 1)
 // This is because the LK Tech servos REALLY don't like receiving commands before their replies are acknowledged
 void DRIVE::send (int id, unsigned char *data)
 {
-    printf(" DRIVE::send()\n");
+    if (DEBUGLOG) printf(" DRIVE::send()\n");
     // Build the command frame, and send it
 	frame.can_id = id;
 	frame.can_dlc = PAYLOAD_SIZE;
@@ -202,9 +210,9 @@ void DRIVE::send (int id, unsigned char *data)
 	write(sock, &frame, sizeof(struct can_frame));
     // Get the motor's reply
     struct can_frame f;
-    printf(" DRIVE::send(A)\n");
+    if (DEBUGLOG) printf(" DRIVE::send(A)\n");
     read(sock, &f, sizeof(struct can_frame));
-    printf(" DRIVE::send(B)\n");
+    if (DEBUGLOG) printf(" DRIVE::send(B)\n");
     // Process the received frame
     // Step 1 - determine which of the robot's motor structures to store the message into, based on ID
     Motor_t *m = 0;
@@ -265,7 +273,7 @@ void DRIVE::task ()
     left.previous = left.position;
     right.previous = right.position;
 
-    mlogger->logAsPrintf("DRIVE::task\n");
+    if (DEBUGLOG) printf("DRIVE::task()\n");
     MotorCmd_t motor_cmd;
     // Send commands to the motors:
     motor_cmd.multi_loop_angle_2.cmd = 0xA4;
@@ -314,6 +322,7 @@ void DRIVE::task ()
 
 void DRIVE::motors_on ()  // Motor init function, to be called only once, on transition from "armed" to "delay". Resets odometry.
 {
+    if (DEBUGLOG) printf("DRIVE::motors_on(%d)\n", mstate.load());
     MotorCmd_t motor_cmd;
     // Turn on the motors ("motor on", 0x88) then reset odometry (0x95)
     motor_cmd.no_param.cmd = 0x88;      // The "no_param" union member is for motor commands that take no parameters, such as turning a motor on
@@ -323,10 +332,12 @@ void DRIVE::motors_on ()  // Motor init function, to be called only once, on tra
     send (MOTOR_LEFT, motor_cmd.raw);
     send (MOTOR_RIGHT, motor_cmd.raw);
     mstate.store(DRIVE_RUNNING);
+    if (DEBUGLOG) printf("DRIVE::motors_on end (%d)\n", mstate.load());
 }
 
 void DRIVE::motors_off () // Motor off function, to be called when transitioning towards the idle state
 {
+    if (DEBUGLOG) printf("DRIVE::motors_off(%d)\n", mstate.load());
     // Send "motor stop" (0x81), then "motor off" (0x81)
     MotorCmd_t motor_cmd;
     // Turn on the motors
@@ -342,6 +353,7 @@ void DRIVE::motors_off () // Motor off function, to be called when transitioning
 // Sends open-loop power commands to both motors
 void DRIVE::power (signed short l, signed short r)    // note : motor #4 (right) and #3 (left)
 {
+    if (DEBUGLOG) printf("DRIVE::power(%d***%d)\n", l, r);
     left.power = l;
     right.power = r;
 }
@@ -349,6 +361,7 @@ void DRIVE::power (signed short l, signed short r)    // note : motor #4 (right)
 // Sends closed-loop speed commands to both motors (left, right)
 void DRIVE::speed (signed long l, signed long r)
 {
+    if (DEBUGLOG) printf("DRIVE::speed(%lu***%lu)\n", l, r);
     left.speed = l;
     right.speed = r;
 }
@@ -356,6 +369,7 @@ void DRIVE::speed (signed long l, signed long r)
 // Sends the motors to specific positions expressed in odometry units
 void DRIVE::move (long l, long r)
 {
+    if (DEBUGLOG) printf("DRIVE::move(%lu***%lu)\n", l, r);
     left.destination = l;
     right.destination = r;
 }
@@ -488,6 +502,7 @@ void* DRIVE::motion_control_thread (void *arg)
 // IMPORTANT - YOU MUST READ THE REPLY FRAME SENT BACK BY THE MOTORS AFTER EACH COMMAND, EVEN IF YOU DON'T USE THE REPLY
 void* DRIVE::motion_control_thread_old (void *arg)
 {
+    if (DEBUGLOG) printf("DRIVE::motion_control_thread_old()");
     DRIVE* drive = (DRIVE*) arg;   // Cast argument to get a pointer to the thread's parent object
 
     // State change detection keepers
@@ -502,27 +517,6 @@ void* DRIVE::motion_control_thread_old (void *arg)
     drive->can_read_reply_frame();
     drive->can_read_reply_frame();
 
-    // Read the motors' PID coefficients
- //   motor_cmd.no_param.cmd = 0x30;
- //   can_send_motor (MOTOR_A, motor_cmd.raw);
- //   can_send_motor (MOTOR_B, motor_cmd.raw);    
-    // THESE COMMANDS DON'T RETURN ANYTHING !         
-/*
-    move(0, 0);
-    printw ("\nPID Coefficients:");
-    printw ("\n  Position loop - M1 P=%i/I=%i | M2 P=%i/I=%i", r.m1.pid_coefficients.pid_coefficients.position_P, r.m1.pid_coefficients.pid_coefficients.position_I, r.m2.pid_coefficients.pid_coefficients.position_P, r.m2.pid_coefficients.pid_coefficients.position_I);
-    refresh();
-*/
-/*
-    // REMAINS FROM EARLY ODOMETRY EXPERIMENT - FOR REFERENCE ONLY
-    // Reset motor position measurements
-    odometry_reset ();
-    motor_cmd.no_param.cmd = 0x95;  // Reset angle measurements
-    can_send_motor (0x141, motor_cmd.raw);
-    can_send_motor (0x142, motor_cmd.raw);       
-    can_read_reply_frame();
-    can_read_reply_frame();   
-*/ 
     static int cnt = 0;
     while (drive->kill == 0)
     {

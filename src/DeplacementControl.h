@@ -36,8 +36,7 @@ class DeplacementControl
     
     int mId; // represent the id of the PAMI
 private:
-    int mId; // represent the id of the PAMI
-    DRIVE mDrive;
+    DRIVE *mDrive;
     std::atomic<DeplacementControlState> mState;
 
     std::atomic<bool> mEnd;
@@ -64,6 +63,9 @@ public:
     /// infos function ///
     // provide informations (some mutexed) about ongoing actions
     inline DeplacementControlState getDeplacementControlState() {return mState.load();}
+    inline DRIVE::DRIVE_STATE getDriverDriveState() { return mDrive->getDriveState(); }
+
+    void setDrive(DRIVE *drive);
     void setId(int id);
 
     void LoopManageMotor();

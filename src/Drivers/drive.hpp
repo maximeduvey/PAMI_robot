@@ -224,7 +224,7 @@ class DRIVE
     public:
         enum DRIVE_STATE : uint8_t{
             DRIVE_STOPPED = 0,
-            DRIVE_RUNNING
+            DRIVE_RUNNING = 1
         };
 
     private :
