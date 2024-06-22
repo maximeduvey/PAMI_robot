@@ -2,19 +2,9 @@
 
 #include <atomic>
 #include "drive.hpp"
+#include "Actions.h"
 
-// 4 RPS / 240 RPM max speed
-// Set the initial speed of the motors
-// Initial values are unequal to compensate for issues with the motors.
-#define DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT 2000
-#define DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT 2880
-#define DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_LEFT 2880
-#define DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_RIGHT 2050
-#define DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_LEFT 1700
-#define DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_RIGHT 2880
-
-/// this is the default value to do a full turn turn for the wheel with the default above value
-#define DEFAULT_ONE_FULL_TURN_RPM 36000
+#include <vector>
 
 /// @brief This class is meant for deplacement control, it's an abstraction to provide a more action like movement
 /// like move forward of x meter, do a rotation x degrees, etc..
@@ -47,6 +37,9 @@ private:
     double mMotorSpeed;                // Speed of the motor
     double mTargetLength;              // Target length to reach
 
+public :
+    std::mutex mMutexObjectiveAction;
+    std::vector<std::shared_ptr<Action>> mObjectivesAction;
 public:
     DeplacementControl();
     ~DeplacementControl();
@@ -79,4 +72,21 @@ private:
     void getDirectionFactor(signed long long &delta_left, signed long long &delta_right);
 
     void getDefaultMotorSpeed(signed long &left_motor, signed long &right_motor);
+
+    /// Action related function ///
+public:
+    std::shared_ptr<Action> getNextAction();
+    void addAction(std::shared_ptr<Action> action);
+    void clearAction();
+
+    // should come later
+    void addPriorityAction(std::shared_ptr<Action> action);
+
+private :
+    void validateAction();
+    void skipAction();
+
+    /// should come in the future
+    void compomiseCurrentImpossibleAction();
+
 };

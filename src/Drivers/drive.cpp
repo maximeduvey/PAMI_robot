@@ -6,7 +6,7 @@
 
 */
 
-#define DEBUGLOG true
+#define DEBUGLOG false
 
 #include "drive.hpp"
 #include <errno.h>
@@ -369,7 +369,7 @@ void DRIVE::speed (signed long l, signed long r)
 // Sends the motors to specific positions expressed in odometry units
 void DRIVE::move (long l, long r)
 {
-    if (DEBUGLOG) printf("DRIVE::move(%lu***%lu)\n", l, r);
+    if (DEBUGLOG) printf("DRIVE::move(%ld***%ld)\n", l, r);
     left.destination = l;
     right.destination = r;
 }

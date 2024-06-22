@@ -54,7 +54,6 @@ void LoggerAndDisplay::closeLogs()
 // todo: add a mutex for access
 void LoggerAndDisplay::log_and_display(int y, int x, const char *format, ...)
 {
-    return;
     // Prepare the formatted message
     va_list args;
     va_start(args, format);
@@ -102,8 +101,8 @@ void LoggerAndDisplay::display_pami_stats(const PAMI& pami)
     // Display some variables for debugging
     // log_and_display(10, 0, "mode[0] = %i - SX_SERVO = %i", pami.sx.mode[0], SX_SERVO);
     // Print motor positions
-    log_and_display(10, 0, " Left: %d", pami.drive.left.position);
-    log_and_display(11, 0, "Right: %d", pami.drive.right.position);
+    log_and_display(10, 0, "Position Left: %d", pami.drive.left.position);
+    log_and_display(11, 0, "Position Right: %d", pami.drive.right.position);
     // log_and_display(10, 0, "long: %i bytes", sizeof(long)); // Verified that a long is 4 bytes on Raspi.
     log_and_display(12, 0, "batt: %f V", (float) pami.drive.left.motor_state_1.motor_state_1.voltage / 100.0);
     log_and_display(13, 0, "speeds %i | %i", pami.drive.left.speed, pami.drive.right.speed);

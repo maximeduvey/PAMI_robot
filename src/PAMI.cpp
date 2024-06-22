@@ -3,9 +3,11 @@
 #include "Drivers/common_includes.h"
 
 #include "LoggerAndDisplay.h"
+#include "MovementAction.h"
 
 // Default constructor
-PAMI::PAMI() {
+PAMI::PAMI()
+{
     mDControl.setDrive(&drive);
 }
 PAMI::~PAMI() {}
@@ -44,6 +46,7 @@ void PAMI::task_idle()
     if (io.pin == PIN_PRESENT)
     {
         pState = PAMI_ARMED;
+        iniStrat_brainDeadForwar();
     }
 }
 
@@ -53,7 +56,7 @@ void PAMI::task_armed()
     /*     sx.move(RIGHT_SERVO, RIGHT_AHEAD);
         sx.move(LEFT_SERVO, LEFT_AHEAD); */
     // TO DO : wait for the pin to get pulled, then transition to DELAY state
-    //printf("PAMI::task_armed()\n");
+    // printf("PAMI::task_armed()\n");
     if (io.pin == PIN_PULLED)
     {
         printf("PAMI::task_armed(arm to delay) \n");
@@ -75,7 +78,7 @@ void PAMI::task_delay()
     // - Transition immediately to "run" state if DIP switch 1 is "on" (for tests only)
     if (io.pin == PIN_PRESENT)
     {
-        printf("PAMI::task_delay()\n");
+        printf("PAMI::task_delay(B)\n");
         drive.motors_off();
         pState = PAMI_ARMED;
         return;
@@ -114,7 +117,6 @@ void PAMI::task_run()
         pState = PAMI_ARMED;
         return;
     }
-    // printf("PAMI::task_run ()\n");
 
     mDControl.goForward(10000);
     return;
@@ -123,12 +125,12 @@ void PAMI::task_run()
     if (io.s1 == PIN_PULLED) // test mode, 90 second delay was skipped, they need to be added here
     {
         time += 90000000; // In microseconds
-
     }
     if (io.s3 == PIN_PULLED) // Shorter move
     {
         // Delay start by one second, and ignore obstacles during that time
-        if (time < 91000000){
+        if (time < 91000000)
+        {
             return;
         }
     }
@@ -153,15 +155,15 @@ void PAMI::task_run()
             printf("PAMI::task_run(io.s2)\n");
         if ((io.tor1 == 0) || (io.tor2 == 0)) // Stop on obstacle detection
         {
-        if (debug)
-            printf("PAMI::task_run(io.tor1)\n");
+            if (debug)
+                printf("PAMI::task_run(io.tor1)\n");
             drive.motors_off();
         }
-        else{
-        if (debug)
-            printf("PAMI::task_run(tor1 else)\n");
+        else
+        {
+            if (debug)
+                printf("PAMI::task_run(tor1 else)\n");
             drive.motors_on();
-            
         }
     }
     else // Ignore wall-side sensors, and other sensor after a certain time travelled
@@ -291,7 +293,7 @@ void PAMI::stateString(char *str)
 void PAMI::init(LoggerAndDisplay *logger)
 {
     mlogger = logger;
-    pState = PAMI_BIST;                    // PAMI always starts by testing itself
+    pState = PAMI_BIST;                   // PAMI always starts by testing itself
     gethostname(hostname, HOST_NAME_LEN); // Determine the local hostname
     char last = hostname[strlen(hostname) - 1];
     switch (last)
@@ -386,4 +388,13 @@ void PAMI::tasks()
         // Perhaps add an error message, as this should never happen
         break;
     }
+}
+
+void PAMI::iniStrat_brainDeadForwar()
+{
+        printf("PAMI::iniStrat_brainDeadForwar()\n");
+    mDControl.clearAction();
+    mDControl.addAction(MovementAction::createActionGoForward());
+    mDControl.addAction(MovementAction::createActionGoForward());
+    mDControl.addAction(MovementAction::createActionGoForward());
 }

@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -I src/ -I src/Drivers/ -I src/Tools/ -Wall -O2
+CXXFLAGS = -I src/ -I src/Drivers/ -I src/Drivers/Components_Interface -I src/Tools/ -I src/Actions  -Wall -O2
 
 # Libraries
 LIBS = -lpigpio -lpthread -lncurses -lm
@@ -11,10 +11,14 @@ LIBS = -lpigpio -lpthread -lncurses -lm
 SRC_DIR = src
 DRIVERS_DIR = src/Drivers
 TOOLS_DIR = src/Tools
+COMPO_INTER_DIR = src/Drivers/Components_Interface
+ACTION_DIR = src/Actions
 
 # Source files
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp) \
             $(wildcard $(DRIVERS_DIR)/*.cpp) \
+            $(wildcard $(COMPO_INTER_DIR)/*.cpp) \
+            $(wildcard $(ACTION_DIR)/*.cpp) \
             $(wildcard $(TOOLS_DIR)/*.cpp)
 
 # Object files

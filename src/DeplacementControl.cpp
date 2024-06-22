@@ -3,6 +3,8 @@
 
 #include <thread>
 #include <stdexcept>
+#include <stdexcept>
+#include "MovementAction.h"
 
 DeplacementControl::DeplacementControl()
     : mId(0), mMotorSpeed(0), mLength(0.0), mTargetLength(0.0)
@@ -46,7 +48,7 @@ void DeplacementControl::setReady()
 
 void DeplacementControl::goForward(int lenght)
 {
-    printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
+    // printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
     this->mTargetLength = mTargetLength;
     mLength = 0.0;
     if (mIsRunning.load() != true)
@@ -54,11 +56,11 @@ void DeplacementControl::goForward(int lenght)
         mIsRunning.store(true);
         setReady();
         std::thread(&DeplacementControl::loop_motor_drive, this).detach();
-        printf("DeplacementControl::goForward B (%d)\n", mIsRunning.load());
+        printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
     }
     else
     {
-        printf("DeplacementControl::goForward(Already started)\n");
+        // printf("DeplacementControl::goForward(Already started)\n");
     }
 }
 
@@ -125,40 +127,55 @@ void DeplacementControl::getDirectionFactor(signed long long &delta_left, signed
 /// @brief This function is meant to be called in loop and
 void DeplacementControl::loop_motor_drive()
 {
-    printf("DeplacementControl::loop_motor_drive(%d)\n", this->mId);
+    printf("DeplacementControl::loop_motor_drive(%d) will try to do %d actions\n", this->mId, mObjectivesAction.size());
     int nbr = 20;
     int current = 0;
     mEnd.store(false);
-/*     while (mEnd.load() != true)
-    { */
+
+    // (action = getNextAction()).get()->getTypeAction() != ACTION::TYPE_OF_ACTION::NONE )
+    while (mEnd.load() == false &&
+           mObjectivesAction.size() > 0)
+    {
+        std::shared_ptr<Action> action = getNextAction();
+        ( (MovementAction*) action.get() )->printValue();
         signed long long delta_left = 0;
         signed long long delta_right = 0;
 
-        getDelta(delta_left, delta_right);
-        getDirectionFactor(delta_left, delta_right);
+        while (mEnd.load() == false &&
+               action.get()->getTypeAction() != Action::TYPE_OF_ACTION::NONE &&
+               action.get()->getToSkip() != true &&
+               action.get()->isActionValid(mDrive) == false)
+        {
+            MovementAction* mvAction = (MovementAction*) action.get();
+            mDrive->speed(mvAction->mSpeedLeft, mvAction->mSpeedRight);
+            mDrive->move(mvAction->mLegacyMotorPosLeft, mvAction->mLegacyMotorPosRight);
+            /*         getDelta(delta_left, delta_right);
+                    getDirectionFactor(delta_left, delta_right);
 
-        int correction = 5; // 5 is a known-good value
-        if (delta_left > delta_right)
-        {
-            mDrive->left.speed -= correction;
-            mDrive->right.speed += correction;
-        }
-        else if (delta_left < delta_right)
-        {
-            mDrive->left.speed += correction;
-            mDrive->right.speed -= correction;
-        }
-        mDrive->move(DEFAULT_ONE_FULL_TURN_RPM, -DEFAULT_ONE_FULL_TURN_RPM);
-        mDrive->task();
-        printf("DeplacementControl::loop_motor_drive()\n");
+                    int correction = 5; // 5 is a known-good value
+                    if (delta_left > delta_right)
+                    {
+                        mDrive->left.speed -= correction;
+                        mDrive->right.speed += correction;
+                    }
+                    else if (delta_left < delta_right)
+                    {
+                        mDrive->left.speed += correction;
+                        mDrive->right.speed -= correction;
+                    } */
+            //mDrive->move(DEFAULT_ONE_FULL_TURN_RPM, DEFAULT_ONE_FULL_TURN_RPM);
+            mDrive->task();
+            printf("DeplacementControl::loop_motor_drive(A)\n");
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-        if (++current > nbr)
-        {
-            mEnd.store(true);
-            printf("DeplacementControl::loop_motor_drive(end reached)\n");
+            std::this_thread::sleep_for(std::chrono::milliseconds(TIME_ONE_TURN_ACTION_MILISEC));
+            if (++current > nbr)
+            {
+                mEnd.store(true);
+                printf("DeplacementControl::loop_motor_drive(end reached)\n");
+            }
         }
-    //}
+        validateAction();
+    }
     printf("DeplacementControl::loop_motor_drive(quitting)\n");
     mIsRunning.store(false);
 }
@@ -204,3 +221,58 @@ void DeplacementControl::setId(int id)
     mId = id;
     printf("DeplacementControl::setId(%d-%d)\n", id, mId);
 }
+
+//////////////////////
+/// ACTION RELATED ///
+//////////////////////
+std::shared_ptr<Action> DeplacementControl::getNextAction()
+{
+    std::lock_guard<std::mutex> lock(mMutexObjectiveAction);
+    return (mObjectivesAction.size() > 0 ? mObjectivesAction[0] : std::make_shared<ActionNone>());
+}
+
+void DeplacementControl::addAction(std::shared_ptr<Action> action)
+{
+    std::lock_guard<std::mutex> lock(mMutexObjectiveAction);
+    mObjectivesAction.push_back(action);
+}
+
+void DeplacementControl::addPriorityAction(std::shared_ptr<Action> action)
+{
+    std::lock_guard<std::mutex> lock(mMutexObjectiveAction);
+    throw std::runtime_error("Not Implemented yet!");
+}
+
+void DeplacementControl::validateAction()
+{
+    std::lock_guard<std::mutex> lock(mMutexObjectiveAction);
+    if (mObjectivesAction.size() < 0 )
+        return;
+    // shoud log / count point action as successed
+    mObjectivesAction.erase(mObjectivesAction.begin());
+}
+
+void DeplacementControl::skipAction()
+{
+    std::lock_guard<std::mutex> lock(mMutexObjectiveAction);
+    // shoud do something
+    mObjectivesAction.erase(mObjectivesAction.begin());
+}
+
+void DeplacementControl::compomiseCurrentImpossibleAction()
+{
+    std::lock_guard<std::mutex> lock(mMutexObjectiveAction);
+    throw std::runtime_error("Not Implemented yet!");
+}
+
+void DeplacementControl::clearAction()
+{
+    printf("DeplacementControl::clearAction()\n");
+    auto action = getNextAction();
+    std::lock_guard<std::mutex> lock(mMutexObjectiveAction);
+    mObjectivesAction.clear();
+    if (action.get()->getTypeAction() != Action::TYPE_OF_ACTION::NONE){
+        action.get()->setToSkip(true);
+    }
+}
+

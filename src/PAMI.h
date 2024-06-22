@@ -92,6 +92,8 @@ class PAMI
         void task_delay();
         void task_run();
 
+        void iniStrat_brainDeadForwar();
+
     public:     // Extra methods
         void stateString (char* );  // Provides the current state of the PAMI state machine as a string 
 };
