@@ -92,10 +92,14 @@ class PAMI
         void task_delay();
         void task_run();
 
-        void iniStrat_brainDeadForwar();
+        void iniStrat_brainDeadForward();
 
     public:     // Extra methods
         void stateString (char* );  // Provides the current state of the PAMI state machine as a string 
+
+    private:
+        void simpleDetectCollission();
+        void interuptMovement();
 };
 
 #endif // __PAMI_MAIN_HPP__

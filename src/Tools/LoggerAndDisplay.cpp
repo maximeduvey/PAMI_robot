@@ -87,10 +87,11 @@ void LoggerAndDisplay::logAsPrintf(const char *format)
 /// @param the pami which you want to display infos of
 void LoggerAndDisplay::display_pami_stats(const PAMI& pami)
 {
+    return;
     log_and_display(4, 0, "DIP 1..4 : %i-%i-%i-%i", pami.io.s1, pami.io.s2, pami.io.s3, pami.io.s4);
     log_and_display(5, 0, "Side %i", pami.io.side);
     log_and_display(6, 0, "Pin %i", pami.io.pin);
-    log_and_display(7, 0, "ToR 1, 2 : %i - %i", pami.io.tor1, pami.io.tor2);
+    log_and_display(7, 0, "ToR 1, 2 : %i - %i", pami.io.mProximitysensorLeft, pami.io.mProximitysensorRight);
     log_and_display(8, 0, "MT INT %i", pami.io.mtint);
     // Let's show what time it is
     //timespec_get(&pami.tzero, TIME_UTC);

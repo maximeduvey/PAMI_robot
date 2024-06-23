@@ -1,8 +1,8 @@
 #include "MovementAction.h"
 #include "drive.hpp"
 
-MovementAction::MovementAction() : mSpeedRight(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT),
-                                   mSpeedLeft(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT),
+MovementAction::MovementAction() : mSpeedLeft(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT),
+                                   mSpeedRight(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT),
                                    mPosX(0),
                                    mPosY(0),
                                    mLegacyMotorPosRight(0),
@@ -15,35 +15,35 @@ MovementAction::MovementAction(signed long speedR,
                                signed long posX,
                                signed long posY,
                                signed long motorPosR /*  = 0 */,
-                               signed long motorPosL /*  = 0 */) : mSpeedRight(speedR),
-                                                                   mSpeedLeft(speedL),
+                               signed long motorPosL /*  = 0 */) : mSpeedLeft(speedR),
+                                                                   mSpeedRight(speedL),
                                                                    mPosX(posX),
                                                                    mPosY(posY),
-                                                                   mLegacyMotorPosRight(motorPosR),
-                                                                   mLegacyMotorPosLeft(motorPosL)
+                                                                   mLegacyMotorPosLeft(motorPosL),
+                                                                   mLegacyMotorPosRight(motorPosR)
 {
     printf("MovementAction::MovementAction() left:%ld / %ld, right:%ld / %ld \n",
-    mPosX, mPosY,
-    mLegacyMotorPosRight, mLegacyMotorPosLeft);
+           mPosX, mPosY,
+           mLegacyMotorPosRight, mLegacyMotorPosLeft);
 }
 
 MovementAction::MovementAction(const MovementAction &ma) : mSpeedRight(ma.mSpeedRight),
                                                            mSpeedLeft(ma.mSpeedLeft),
                                                            mPosX(ma.mPosX),
                                                            mPosY(ma.mPosY),
-                                                           mLegacyMotorPosRight(ma.mLegacyMotorPosRight),
-                                                           mLegacyMotorPosLeft(ma.mLegacyMotorPosLeft)
+                                                           mLegacyMotorPosLeft(ma.mLegacyMotorPosLeft),
+                                                           mLegacyMotorPosRight(ma.mLegacyMotorPosRight)
 {
-        printf("MovementAction::MovementAction(copy) left:%ld / %ld, right:%ld / %ld \n",
-    mPosX, mPosY,
-    mLegacyMotorPosRight, mLegacyMotorPosLeft);
+    printf("MovementAction::MovementAction(copy) left:%ld / %ld, right:%ld / %ld \n",
+           mPosX, mPosY,
+           mLegacyMotorPosRight, mLegacyMotorPosLeft);
 }
 
-void MovementAction::printValue() const 
+void MovementAction::printValue() const
 {
     printf("MovementAction::printValue() posy:%ld / posY:%ld, right:%ld / left:%ld \n",
-    mPosX, mPosY,
-    mLegacyMotorPosRight, mLegacyMotorPosLeft);
+           mPosX, mPosY,
+           mLegacyMotorPosRight, mLegacyMotorPosLeft);
 }
 
 MovementAction::~MovementAction()
@@ -78,10 +78,10 @@ bool MovementAction::isActionValid(void *arg) const
     }
 
     printf("MovementAction::isActionValid(false) left:%lld / right:%lld, poleft:%ld / poright:%ld \n",
-    dr->left.position,
-    dr->right.position, 
-    mLegacyMotorPosLeft,
-    mLegacyMotorPosRight);
+           dr->left.position,
+           dr->right.position,
+           mLegacyMotorPosLeft,
+           mLegacyMotorPosRight);
     return false;
 }
 
@@ -95,34 +95,44 @@ void MovementAction::setMotorPosTo(signed long posRight, signed long posLeft)
 {
     mLegacyMotorPosRight = posRight;
     mLegacyMotorPosLeft = posLeft;
-    printf("MovementAction::setMotorPosTo(left:%ld - right:%d)\n",mLegacyMotorPosLeft, mLegacyMotorPosRight);
+    printf("MovementAction::setMotorPosTo(left:%ld - right:%d)\n", mLegacyMotorPosLeft, mLegacyMotorPosRight);
 }
-
 
 //////////////
 /// Static ///
 //////////////
-std::shared_ptr<Action> MovementAction::createActionGoForward() {
+std::shared_ptr<Action> MovementAction::createActionGoForward()
+{
     printf("MovementAction::createActionGoForward()\n");
     return std::make_shared<MovementAction>(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT,
-    DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT,
-    0, 0, 720000, 720000);
+                                            DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT,
+                                            0, 0, 720000, 720000);
 }
 
 std::shared_ptr<Action> MovementAction::createActionGoBackward()
 {
-
+    printf("MovementAction::createActionGoForward()\n");
+    return std::make_shared<MovementAction>(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT,
+                                            DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT,
+                                            0, 0, -DEFAULT_ONE_FULL_TURN_RPM, -DEFAULT_ONE_FULL_TURN_RPM);
 }
 
 std::shared_ptr<Action> MovementAction::createActionTurn90Right()
 {
+    printf("MovementAction::createActionTurn90Right()\n");
+    return std::make_shared<MovementAction>(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT,
+                                            DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT,
+                                            0, 0, -(DEFAULT_ONE_FULL_TURN_RPM / 4), DEFAULT_ONE_FULL_TURN_RPM);
 }
 
 std::shared_ptr<Action> MovementAction::createActionTurn90Left()
 {
+    printf("MovementAction::createActionTurn90Left()\n");
+    return std::make_shared<MovementAction>(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT,
+                                            DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT,
+                                            0, 0, DEFAULT_ONE_FULL_TURN_RPM, -(DEFAULT_ONE_FULL_TURN_RPM / 4));
 }
 
 std::shared_ptr<Action> MovementAction::createActionTurn180()
 {
 }
-

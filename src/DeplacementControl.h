@@ -31,6 +31,7 @@ private:
 
     std::atomic<bool> mEnd;
     std::atomic<bool> mIsRunning;
+    std::atomic<bool> mIsStopped;
     /* data */
 
     double mLength;       // Length covered by the motor
@@ -42,12 +43,13 @@ public :
     std::vector<std::shared_ptr<Action>> mObjectivesAction;
 public:
     DeplacementControl();
-    ~DeplacementControl();
+    virtual ~DeplacementControl();
 
     /// basic Action ///
     // simple oneshot action that the pami will do
-    void goForward(int lenght);
     void stop();
+    void resume();
+    void end();
 
     /// objectif action ///
     // objectif action a followup of step that the pami want to achieve
@@ -61,11 +63,11 @@ public:
     void setDrive(DRIVE *drive);
     void setId(int id);
 
-    void LoopManageMotor();
     void testRun(int durationSeconds);
 
     void loop_motor_drive();
     void setReady();
+    void startRunning();
 
 private:
     int getDelta(signed long long &delta_left, signed long long &delta_right);
@@ -79,8 +81,14 @@ public:
     void addAction(std::shared_ptr<Action> action);
     void clearAction();
 
+    inline bool isRunning(){ return mIsRunning.load(); }
+    inline bool isStopped(){ return mIsStopped.load(); }
+
     // should come later
     void addPriorityAction(std::shared_ptr<Action> action);
+
+    void doCalibrationOnMotorSpeed();
+    
 
 private :
     void validateAction();
@@ -88,5 +96,6 @@ private :
 
     /// should come in the future
     void compomiseCurrentImpossibleAction();
+    void motorSpeedCalibration();
 
 };

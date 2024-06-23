@@ -32,6 +32,7 @@ void GPIO::init (LoggerAndDisplay *logger)
     gpioSetMode(TOR1, PI_INPUT);
     gpioSetMode(TOR2, PI_INPUT);
     gpioSetMode(MINT, PI_INPUT);
+
     // Event handlers registration
 /*  // this is demo code, may be thread-based, not recommended for PAMI applications
     gpioSetAlertFunc(DIP1, GPIO::onChange);
@@ -40,8 +41,8 @@ void GPIO::init (LoggerAndDisplay *logger)
     gpioSetAlertFunc(DIP4, GPIO::onChange);
     gpioSetAlertFunc(SIDE, GPIO::onChange);
     gpioSetAlertFunc(HALL, GPIO::onChange);
-    gpioSetAlertFunc(TOR1, GPIO::onChange);
-    gpioSetAlertFunc(TOR2, GPIO::onChange);
+    gpioSetAlertFunc(mProximitysensorLeft, GPIO::onChange);
+    gpioSetAlertFunc(mProximitysensorRight, GPIO::onChange);
     gpioSetAlertFunc(MINT, GPIO::onChange);
 */
 
@@ -60,9 +61,20 @@ void GPIO::task ()   // Reads all GPIO to update the state of this object
     s4 = 1 - gpioRead(DIP4);
     side = gpioRead(SIDE);
     pin = gpioRead(HALL);
-    tor1 = gpioRead(TOR1);
-    tor2 = gpioRead(TOR2);
+    mProximitysensorLeft = gpioRead(TOR1);
+    mProximitysensorRight = gpioRead(TOR2);
     mtint = gpioRead(MINT);
+
+    if (mProximitysensorLeft != lastKnowState_PSL){
+        printf("LEFT proximity sensor changed from:%d, to:%d\n", lastKnowState_PSL, mProximitysensorLeft);
+        lastKnowState_PSL = mProximitysensorLeft;
+    }
+    if (mProximitysensorRight != lastKnowState_PSR){
+        printf("RIGHT proximity sensor changed from:%d, to:%d\n", lastKnowState_PSR, mProximitysensorRight);
+        lastKnowState_PSR = mProximitysensorRight;
+    }
+    //printf("Sensor %d - %d\n", mProximitysensorLeft, mProximitysensorRight);
+
 }
 
 // Event handlers =======================================================

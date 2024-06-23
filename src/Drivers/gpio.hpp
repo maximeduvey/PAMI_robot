@@ -43,8 +43,13 @@ class GPIO
         // Hall sensor (arming pin a.k.a. tirette)
         int pin;    // GPIO21 - pin 40
         // ToR sensors from the battery board
-        int tor1;     // GPIO7 - pin 26
-        int tor2;     // GPIO5 - pin 29
+        int mProximitysensorLeft = 0;     // GPIO7 - pin 26
+        int mProximitysensorRight = 0;     // GPIO5 - pin 29
+
+        // used to monitor only change of different state
+        int lastKnowState_PSL = 0;
+        int lastKnowState_PSR = 0;
+
         // Motion tracker interrupt pin
         int mtint;     // GPIO20 - pin 38
 

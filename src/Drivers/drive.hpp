@@ -276,6 +276,8 @@ class DRIVE
         void speed (signed long l, signed long r);        // Sends closed-loop speed commands to both motors (left, right)
         void move (long l, long r);             // Sends the motors to specific positions expressed in odometry units
     
+        void printfDriveInfos();
+
     DRIVE_STATE getDriveState() const;
 
 

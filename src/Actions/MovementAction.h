@@ -7,6 +7,10 @@
 // for example: we ask 36000 and get 35995 it's goo
 #define MOTOR_POSITION_TOLERANCE 6
 
+// this is the value we will apply to try to manage the difference in motor speed 
+// to try to maintain a straight line
+#define SPEED_STRENGHT_CORRECTION 5
+
 class MovementAction : public Action
 {
     public:

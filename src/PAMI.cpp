@@ -4,6 +4,7 @@
 
 #include "LoggerAndDisplay.h"
 #include "MovementAction.h"
+#include <thread>
 
 // Default constructor
 PAMI::PAMI()
@@ -34,19 +35,13 @@ void PAMI::task_bist()
 
 void PAMI::task_idle()
 {
-    // Default servo positions
-    if (0)
-    {
-        /*         sx.move(RIGHT_SERVO, RIGHT_AHEAD);
-                sx.move(LEFT_SERVO, LEFT_AHEAD); */
-    }
     // TO DO : wait for all conditions necessary to transition to ARMED state
     // - Motor power must be enabled (meaning emergency stop is armed)
     // - Pin must be present
     if (io.pin == PIN_PRESENT)
     {
         pState = PAMI_ARMED;
-        iniStrat_brainDeadForwar();
+        iniStrat_brainDeadForward();
     }
 }
 
@@ -90,19 +85,6 @@ void PAMI::task_delay()
     if (time > PAMI_WAIT_DELAY)
     {
         pState = PAMI_RUN;
-        // Set the initial speed of the motors
-        // Initial values are unequal to compensate for issues with the motors.
-        // drive.speed (1440, 1440);  // 4 RPS / 240 RPM max speed
-        // drive.speed (1000, 1440);  // 4 RPS / 240 RPM max speed
-        // drive.speed (1500, 2880);  // 4 RPS / 240 RPM max speed // Used on first matches
-        if (id == 1)
-            drive.speed(2000, 2880); // PAMI 1 values calibrated, do not change.
-        if (id == 2)
-            drive.speed(2880, 2050); // PAMI 2 values calibrated, do not change.
-        if (id == 3)
-            drive.speed(1700, 2880); // PAMI 3 values calibrated, do not change.
-
-        // mDControl.setReady();
     }
 }
 
@@ -117,150 +99,14 @@ void PAMI::task_run()
         pState = PAMI_ARMED;
         return;
     }
+    drive.printfDriveInfos();
 
-    mDControl.goForward(10000);
+    //mDControl.doCalibrationOnMotorSpeed();
+    mDControl.startRunning();
+    simpleDetectCollission();
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     return;
-
-    // TO DO : Wait until the end of match and transition the robot to IDLE state
-    if (io.s1 == PIN_PULLED) // test mode, 90 second delay was skipped, they need to be added here
-    {
-        time += 90000000; // In microseconds
-    }
-    if (io.s3 == PIN_PULLED) // Shorter move
-    {
-        // Delay start by one second, and ignore obstacles during that time
-        if (time < 91000000)
-        {
-            return;
-        }
-    }
-    if (time > PAMI_STOP_TIME)
-    {
-        if (debug)
-            printf("PAMI::task_run(time > PAMI_STOP_TIME)\n");
-        drive.motors_off();
-        pState = PAMI_IDLE;
-    }
-    if (io.pin == PIN_PRESENT) // Run abort by replacing the pin
-    {
-        if (debug)
-            printf("PAMI::task_run(io.pin)\n");
-        drive.motors_off();
-        pState = PAMI_ARMED;
-    }
-    // New : two different behaviors based on second DIP switch:
-    if (io.s2 == 0)
-    {
-        if (debug)
-            printf("PAMI::task_run(io.s2)\n");
-        if ((io.tor1 == 0) || (io.tor2 == 0)) // Stop on obstacle detection
-        {
-            if (debug)
-                printf("PAMI::task_run(io.tor1)\n");
-            drive.motors_off();
-        }
-        else
-        {
-            if (debug)
-                printf("PAMI::task_run(tor1 else)\n");
-            drive.motors_on();
-        }
-    }
-    else // Ignore wall-side sensors, and other sensor after a certain time travelled
-    {
-        if (io.side == 1) // "YELLOW" side -> ignore left side sensor (ToR 1)
-        {
-            // sx.move(LEFT_SERVO, LEFT_DEPLOYED);
-            if ((io.tor2 == 0) && (time < TIMING_A1)) // only ack the obstacle until the 92th second
-            {
-                if (debug)
-                    printf("PAMI::task_run(io.tor2)\n");
-                drive.motors_off();
-                pState = PAMI_IDLE;
-            }
-        }
-        else // "BLUE" side -> ignore right side sensor (ToR 2)
-        {
-            // sx.move(RIGHT_SERVO, RIGHT_DEPLOYED);
-            if ((io.tor1 == 0) && (time < TIMING_A1)) // only ack the obstacle until the 92th second
-            {
-                if (debug)
-                    printf("PAMI::task_run(io.tor1)\n");
-                drive.motors_off();
-                pState = PAMI_IDLE;
-            }
-        }
-        if (time > TIMING_A2) // Full stop after 2.5 seconds
-        {
-            if (debug)
-                printf("PAMI::task_run((time > TIMING_A2)\n");
-            drive.motors_off();
-            pState = PAMI_IDLE;
-        }
-    }
-
-    // Set a speed (test only)
-    // drive.power (200, 200); // open-loop, not good
-    // drive.speed (36000, 36000);    // closed-loop, 1 turn per second.
-    // drive.speed (200000, 200000);
-
-    // Odometry deltas
-    signed long long delta_left = drive.left.position - drive.left.previous;
-    signed long long delta_right = drive.right.position - drive.right.previous;
-    int delta = abs(delta_left - delta_right);
-
-    // Attempt at differential speed regulation to keep a straight line
-    unsigned short speedl = 1440;
-    unsigned short speedr = 1440;
-    float correction_strength = delta * 25.0;
-    int correction = 5; // 5 is a known-good value
-                        // if (delta > 10)
-    //{
-    //  if (drive.left.position > drive.right.position)
-    if (delta_left > delta_right)
-    {
-        speedl *= (1 + correction_strength);
-        speedr *= (1 - correction_strength);
-        drive.left.speed -= correction;
-        drive.right.speed += correction;
-    }
-    // if (drive.left.position < drive.right.position)
-    if (delta_left < delta_right)
-    {
-        speedl *= (1 - correction_strength);
-        speedr *= (1 + correction_strength);
-        drive.left.speed += correction;
-        drive.right.speed -= correction;
-    }
-    //}
-    // drive.speed (speedl - 100, speedr + 200);
-    // drive.speed (speedr, speedl);
-    /*
-        // Experimental avoidance code
-        // if ((io.tor1 == 0) || (io.tor2 == 0))   // Stop on obstacle detection
-        if (io.tor1 == 0)   // Obstacle to the left
-            drive.right.speed = 0;
-            // drive.right.speed -= 1000;
-            // drive.left.speed += 100;   // Accelerate left-side to avoid towards the right
-        if (io.tor2 == 0)   // Obstacle to the right
-            drive.left.speed = 0;
-            // drive.left.speed -= 1000;
-            // drive.right.speed += 100;   // Accelerate right-side to avoid towards the left
-    */
-    // Combined position+speed regulation
-    // drive.speed (360, 360);    // 1 RPS max
-    // drive.speed (540, 540);    // 1.5 RPS max
-    // drive.speed (1440, 1440);    // 4 RPS max
-    // drive.speed (2880, 2880);    // 4 RPS max
-    // drive.move (540000, 540000);  // 15 full turns
-    // drive.move (36000, 36000);  // 1 full turns
-    drive.move(720000, 720000); // 20 full turns
-    // drive.move (360000, 360000);  // 10 full turns
-    // drive.move (180000, 180000);  // 5 full turns
-
-    // Run the motors
-    drive.task();
-    // printf("PAMI::task_run (end)\n");
 }
 
 // Provide a printable version of the PAMI state variable (strings are padded to the same length)
@@ -366,7 +212,7 @@ void PAMI::tasks()
 
     // FOR TESTS ONLY - MOTOR CONTROL TASK
     // drive.task();
-
+    
     switch (pState)
     {
     case PAMI_BIST:
@@ -390,11 +236,29 @@ void PAMI::tasks()
     }
 }
 
-void PAMI::iniStrat_brainDeadForwar()
+void PAMI::iniStrat_brainDeadForward()
 {
-        printf("PAMI::iniStrat_brainDeadForwar()\n");
+    printf("PAMI::iniStrat_brainDeadForward()\n");
     mDControl.clearAction();
+    //mDControl.addAction(MovementAction::createActionTurn90Right());
+
     mDControl.addAction(MovementAction::createActionGoForward());
+/*     mDControl.addAction(MovementAction::createActionGoForward());
     mDControl.addAction(MovementAction::createActionGoForward());
-    mDControl.addAction(MovementAction::createActionGoForward());
+    mDControl.addAction(MovementAction::createActionGoForward()); */
+}
+
+void PAMI::simpleDetectCollission()
+{
+    //printf("PAMI::simpleDetectCollission() L:%d, R:%d\n",io.mProximitysensorLeft, io.mProximitysensorRight);
+    if (io.mProximitysensorLeft != 1 || io.mProximitysensorRight != 1){
+        interuptMovement();
+    } else if (mDControl.isStopped()){
+        mDControl.resume();
+    }
+}
+
+void PAMI::interuptMovement()
+{
+    mDControl.stop();
 }
