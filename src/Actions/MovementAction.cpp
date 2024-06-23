@@ -101,12 +101,13 @@ void MovementAction::setMotorPosTo(signed long posRight, signed long posLeft)
 //////////////
 /// Static ///
 //////////////
-std::shared_ptr<Action> MovementAction::createActionGoForward()
+std::shared_ptr<Action> MovementAction::createActionGoForward(float centimeterToRun)
 {
-    printf("MovementAction::createActionGoForward()\n");
+    long long distance = (centimeterToRun * (MINIMETER_PER_TURN/100) * DEFAULT_ONE_FULL_TURN_RPM);
+    printf("MovementAction::createActionGoForward(%lld) %f, %d\n", distance, centimeterToRun, DEFAULT_ONE_FULL_TURN_RPM);
     return std::make_shared<MovementAction>(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT,
                                             DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT,
-                                            0, 0, 720000, 720000);
+                                            0, 0, distance, distance);
 }
 
 std::shared_ptr<Action> MovementAction::createActionGoBackward()

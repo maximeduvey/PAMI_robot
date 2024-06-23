@@ -3,14 +3,6 @@
 
 #include "Actions.h"
 
-// this represent the tolerance we accepte on the motor position
-// for example: we ask 36000 and get 35995 it's goo
-#define MOTOR_POSITION_TOLERANCE 6
-
-// this is the value we will apply to try to manage the difference in motor speed 
-// to try to maintain a straight line
-#define SPEED_STRENGHT_CORRECTION 5
-
 class MovementAction : public Action
 {
     public:
@@ -55,7 +47,7 @@ class MovementAction : public Action
     ///////////////////////////
     /// Simple basic Action ///
     //////////////////////////
-    static std::shared_ptr<Action> createActionGoForward();
+    static std::shared_ptr<Action> createActionGoForward(float centimeterToRun);
     static std::shared_ptr<Action> createActionGoBackward();
     static std::shared_ptr<Action> createActionTurn90Right();
     static std::shared_ptr<Action> createActionTurn90Left();

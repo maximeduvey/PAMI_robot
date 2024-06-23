@@ -101,10 +101,10 @@ void PAMI::task_run()
     }
     drive.printfDriveInfos();
 
-    //mDControl.doCalibrationOnMotorSpeed();
+    // mDControl.doCalibrationOnMotorSpeed();
     mDControl.startRunning();
     simpleDetectCollission();
-    
+
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     return;
 }
@@ -212,7 +212,7 @@ void PAMI::tasks()
 
     // FOR TESTS ONLY - MOTOR CONTROL TASK
     // drive.task();
-    
+
     switch (pState)
     {
     case PAMI_BIST:
@@ -240,20 +240,37 @@ void PAMI::iniStrat_brainDeadForward()
 {
     printf("PAMI::iniStrat_brainDeadForward()\n");
     mDControl.clearAction();
-    //mDControl.addAction(MovementAction::createActionTurn90Right());
-
-    mDControl.addAction(MovementAction::createActionGoForward());
-/*     mDControl.addAction(MovementAction::createActionGoForward());
-    mDControl.addAction(MovementAction::createActionGoForward());
-    mDControl.addAction(MovementAction::createActionGoForward()); */
+    // mDControl.addAction(MovementAction::createActionTurn90Right());
+    if (id == 2)
+    {
+        printf("PAMI::iniStrat_brainDeadForward(PAMI 1)\n");
+        mDControl.addAction(MovementAction::createActionGoForward(120));
+    }
+    else if (id == 3)
+    {
+        printf("PAMI::iniStrat_brainDeadForward(PAMI 2)\n");
+        mDControl.addAction(MovementAction::createActionGoForward(60));
+        mDControl.addAction(MovementAction::createActionTurn90Right());
+        mDControl.addAction(MovementAction::createActionGoForward(140));
+    }
+    else if (id == 1)
+    {
+        printf("PAMI::iniStrat_brainDeadForward(PAMI 3)\n");
+        mDControl.addAction(MovementAction::createActionGoForward(130));
+        mDControl.addAction(MovementAction::createActionTurn90Left());
+        mDControl.addAction(MovementAction::createActionGoForward(160));
+    }
 }
 
 void PAMI::simpleDetectCollission()
 {
-    //printf("PAMI::simpleDetectCollission() L:%d, R:%d\n",io.mProximitysensorLeft, io.mProximitysensorRight);
-    if (io.mProximitysensorLeft != 1 || io.mProximitysensorRight != 1){
+    // printf("PAMI::simpleDetectCollission() L:%d, R:%d\n",io.mProximitysensorLeft, io.mProximitysensorRight);
+    if (io.mProximitysensorLeft != 1 || io.mProximitysensorRight != 1)
+    {
         interuptMovement();
-    } else if (mDControl.isStopped()){
+    }
+    else if (mDControl.isStopped())
+    {
         mDControl.resume();
     }
 }

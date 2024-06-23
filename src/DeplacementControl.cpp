@@ -146,29 +146,29 @@ void DeplacementControl::loop_motor_drive()
                 getDirectionFactor(delta_left, delta_right);
 
                 int corection_speed_right = 0, corection_speed_left = 0;
-                /*                 if (abs(delta) > MOTOR_POSITION_TOLERANCE)
-                                {
-                                    if (delta > 0) // left move faster
-                                    {
-                                        corection_speed_right = SPEED_STRENGHT_CORRECTION;
-                                        corection_speed_left = -SPEED_STRENGHT_CORRECTION;
-                                    }
-                                    else //right move faster
-                                    {
-                                        corection_speed_right = -SPEED_STRENGHT_CORRECTION;
-                                        corection_speed_left = SPEED_STRENGHT_CORRECTION;
-                                    }
-                                    printf ("DeplacementControl::loop_motor_drive() speed corection was applied, left:%d, right:%d\n",
-                                    corection_speed_left, corection_speed_right);
-                                } */
+                if (abs(delta) > MOTOR_POSITION_TOLERANCE)
+                {
+                    if (delta > 0) // left move faster
+                    {
+                        mvAction->mSpeedRight += SPEED_STRENGHT_CORRECTION;
+                        mvAction->mSpeedLeft += -SPEED_STRENGHT_CORRECTION;
+                    }
+                    else // right move faster
+                    {
+                        mvAction->mSpeedRight += -SPEED_STRENGHT_CORRECTION;
+                        mvAction->mSpeedLeft += SPEED_STRENGHT_CORRECTION;
+                    }
+                    printf("DeplacementControl::loop_motor_drive() speed corection was applied, left:%d, right:%d\n",
+                           corection_speed_left, corection_speed_right);
+                }
 
-                mDrive->speed(mvAction->mSpeedLeft + corection_speed_right, mvAction->mSpeedRight + corection_speed_left);
+                mDrive->speed(mvAction->mSpeedLeft + corection_speed_left, mvAction->mSpeedRight + corection_speed_right);
                 mDrive->move(mvAction->mLegacyMotorPosLeft, mvAction->mLegacyMotorPosRight);
                 mDrive->task();
                 printf("DeplacementControl::loop_motor_drive(A)\n");
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(TIME_ONE_TURN_ACTION_MILISEC));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         validateAction();
     }
@@ -297,7 +297,7 @@ void DeplacementControl::motorSpeedCalibration()
     mEnd.store(false);
 
     bool calibrationDone = false;
-    std::shared_ptr<Action> tmpAction = MovementAction::createActionGoForward();
+    std::shared_ptr<Action> tmpAction = MovementAction::createActionGoForward(100);
     MovementAction *forwardAction = (MovementAction *)tmpAction.get();
 
     long long currentDelta = 0;
@@ -308,19 +308,18 @@ void DeplacementControl::motorSpeedCalibration()
     int turnCount = 0;
     int isIncreasing = 0;
 
-
     while (mEnd.load() == false && calibrationDone == false)
     {
-/*         mDrive->motors_off();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        mDrive->motors_on();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20)); */
+        /*         mDrive->motors_off();
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+                mDrive->motors_on();
+                std::this_thread::sleep_for(std::chrono::milliseconds(20)); */
 
         forwardAction->mLegacyMotorPosRight = turnR + (turnR * turnCount);
         forwardAction->mLegacyMotorPosLeft = turnL + (turnL * turnCount);
         mDrive->printfDriveInfos();
         printf("DeplacementControl::motorSpeedCalibration() Turn , %d,  left:%lld, right:%lld\n\n",
-                       turnCount, forwardAction->mLegacyMotorPosLeft, forwardAction->mLegacyMotorPosRight);
+               turnCount, forwardAction->mLegacyMotorPosLeft, forwardAction->mLegacyMotorPosRight);
         ++turnCount;
 
         while (mEnd.load() == false && calibrationDone == false &&
@@ -335,7 +334,11 @@ void DeplacementControl::motorSpeedCalibration()
                 if (currentDelta > 0) // left move faster
                 {
                     if (isIncreasing == 0) // not set
-                    {isIncreasing = 1;} else if( isIncreasing == 2){
+                    {
+                        isIncreasing = 1;
+                    }
+                    else if (isIncreasing == 2)
+                    {
                         calibrationDone = true;
                     }
                     forwardAction->mSpeedLeft += -SPEED_STRENGHT_CORRECTION;
@@ -344,7 +347,11 @@ void DeplacementControl::motorSpeedCalibration()
                 else // right move faster
                 {
                     if (isIncreasing == 0) // not set
-                    {isIncreasing = 2;} else if( isIncreasing == 1){
+                    {
+                        isIncreasing = 2;
+                    }
+                    else if (isIncreasing == 1)
+                    {
                         calibrationDone = true;
                     }
                     forwardAction->mSpeedLeft += SPEED_STRENGHT_CORRECTION;
