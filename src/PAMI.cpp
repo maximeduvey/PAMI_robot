@@ -6,6 +6,8 @@
 #include "MovementAction.h"
 #include <thread>
 
+#include "sharedInfos.h"
+
 // Default constructor
 PAMI::PAMI()
 {
@@ -145,12 +147,15 @@ void PAMI::init(LoggerAndDisplay *logger)
     switch (last)
     {
     case '1':
+        PAMI_ID = 1;
         id = 1;
         break;
     case '2':
+        PAMI_ID = 2;
         id = 2;
         break;
     case '3':
+        PAMI_ID = 3;
         id = 3;
         break;
         // Add a default case for when the hostname is invalid
@@ -241,25 +246,34 @@ void PAMI::iniStrat_brainDeadForward()
     printf("PAMI::iniStrat_brainDeadForward()\n");
     mDControl.clearAction();
     // mDControl.addAction(MovementAction::createActionTurn90Right());
-    if (id == 2)
-    {
-        printf("PAMI::iniStrat_brainDeadForward(PAMI 1)\n");
-        mDControl.addAction(MovementAction::createActionGoForward(120));
-    }
-    else if (id == 3)
-    {
-        printf("PAMI::iniStrat_brainDeadForward(PAMI 2)\n");
-        mDControl.addAction(MovementAction::createActionGoForward(60));
-        mDControl.addAction(MovementAction::createActionTurn90Right());
-        mDControl.addAction(MovementAction::createActionGoForward(140));
-    }
-    else if (id == 1)
-    {
-        printf("PAMI::iniStrat_brainDeadForward(PAMI 3)\n");
-        mDControl.addAction(MovementAction::createActionGoForward(130));
-        mDControl.addAction(MovementAction::createActionTurn90Left());
-        mDControl.addAction(MovementAction::createActionGoForward(160));
-    }
+
+    mDControl.addAction(MovementAction::createActionGoForward(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    mDControl.addAction(MovementAction::createActionTurn90Right());
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    mDControl.addAction(MovementAction::createActionTurn90Left());
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    mDControl.addAction(MovementAction::createActionTurn90Left());
+
+    // if (PAMI_ID == 2)
+    // {
+    //     printf("PAMI::iniStrat_brainDeadForward(PAMI 1)\n");
+    //     mDControl.addAction(MovementAction::createActionGoForward(120));
+    // }
+    // else if (PAMI_ID == 3)
+    // {
+    //     printf("PAMI::iniStrat_brainDeadForward(PAMI 2)\n");
+    //     mDControl.addAction(MovementAction::createActionGoForward(60));
+    //     mDControl.addAction(MovementAction::createActionTurn90Right());
+    //     mDControl.addAction(MovementAction::createActionGoForward(140));
+    // }
+    // else if (PAMI_ID == 1)
+    // {
+    //     printf("PAMI::iniStrat_brainDeadForward(PAMI 3)\n");
+    //     mDControl.addAction(MovementAction::createActionGoForward(130));
+    //     mDControl.addAction(MovementAction::createActionTurn90Left());
+    //     mDControl.addAction(MovementAction::createActionGoForward(160));
+    // }
 }
 
 void PAMI::simpleDetectCollission()

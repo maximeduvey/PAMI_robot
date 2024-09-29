@@ -43,6 +43,9 @@ class MovementAction : public Action
 
     /// @brief speed in percentage of the motor capacities (between 0% and 100%)
     //void setSpeed(char percentage) { /* should do a calcul, will come later */}
+
+    static signed long getWheelSpeed_Left_ForPami();
+    static signed long getWheelSpeed_Right_ForPami();
     
     ///////////////////////////
     /// Simple basic Action ///
