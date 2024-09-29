@@ -161,7 +161,7 @@ void PAMI::init(LoggerAndDisplay *logger)
         // Add a default case for when the hostname is invalid
     }
     mDControl.setId(id);
-    printf("PAMI::init(%d)\n", mDControl.mId);
+    printf("PAMI::init(%d) PAMI_ID:\n", mDControl.mId, PAMI_ID);
     // Get the local IP address (based on example at https://man7.org/linux/man-pages/man3/getifaddrs.3.html)
     struct ifaddrs *ifaddr;
     int family, s;
