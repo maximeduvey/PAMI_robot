@@ -144,38 +144,45 @@ std::shared_ptr<Action> MovementAction::createActionTurn180()
 /// @return
 signed long MovementAction::getWheelSpeed_Left_ForPami()
 {
+    signed long ret = 0;
     switch (PAMI_ID)
     {
     case 1:
-        return DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT;
         break;
     case 2:
-        return DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_LEFT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_LEFT;
         break;
     case 3:
-        return DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_LEFT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_LEFT;
         break;
     default:
-        return 0;
+        ret = 0;
         break;
     }
+    printf("MovementAction::getWheelSpeed_Left_ForPami() %ld\n", ret);
+    return ret;
 }
 
 signed long MovementAction::getWheelSpeed_Right_ForPami()
 {
+    signed long ret = 0;
     switch (PAMI_ID)
     {
     case 1:
-        return DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT;
         break;
     case 2:
-        return DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_RIGHT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_RIGHT;
         break;
     case 3:
-        return DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_RIGHT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_RIGHT;
         break;
     default:
-        return 0;
+        ret = 0;
         break;
     }
+    
+    printf("MovementAction::getWheelSpeed_Right_ForPami() %ld\n", ret);
+    return ret;
 }
