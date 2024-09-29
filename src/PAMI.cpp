@@ -161,7 +161,7 @@ void PAMI::init(LoggerAndDisplay *logger)
         // Add a default case for when the hostname is invalid
     }
     mDControl.setId(id);
-    printf("PAMI::init(%d) PAMI_ID:\n", mDControl.mId, SingletonSharedInfos::getInstance().getPAMI_ID());
+    printf("PAMI::init(%d) PAMI_ID:%d\n", mDControl.mId, SingletonSharedInfos::getInstance().getPAMI_ID());
     // Get the local IP address (based on example at https://man7.org/linux/man-pages/man3/getifaddrs.3.html)
     struct ifaddrs *ifaddr;
     int family, s;
@@ -254,6 +254,8 @@ void PAMI::iniStrat_brainDeadForward()
     mDControl.addAction(MovementAction::createActionTurn90Left());
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     mDControl.addAction(MovementAction::createActionTurn90Left());
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    mDControl.addAction(MovementAction::createActionGoForward(50));
 
     // if (PAMI_ID == 2)
     // {

@@ -21,7 +21,8 @@
 /// (suposition) I suppose 36000 is the number of point around the wheel, it's also the motor position on the Drive
 #define DEFAULT_ONE_FULL_TURN_RPM 36000
 //#define MINIMETER_PER_TURN 12.9
-#define MINIMETER_PER_TURN 8.6
+//#define MINIMETER_PER_TURN 8.6
+#define MINIMETER_PER_TURN 7.8 //aprés multiple tests
 
 // This is a temporary timer measured by hand taken to do a "1 turn action"
 // for the Motors to do a fulle turn (one direction or opposed direction)
