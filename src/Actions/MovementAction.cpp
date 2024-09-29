@@ -1,7 +1,7 @@
 #include "MovementAction.h"
 #include "drive.hpp"
 
-#include "sharedInfos.h"
+#include "SingletonSharedInfos.h"
 
 MovementAction::MovementAction() : mSpeedLeft(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT),
                                    mSpeedRight(DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT),
@@ -145,7 +145,7 @@ std::shared_ptr<Action> MovementAction::createActionTurn180()
 signed long MovementAction::getWheelSpeed_Left_ForPami()
 {
     signed long ret = 0;
-    switch (PAMI_ID)
+    switch (SingletonSharedInfos::getInstance().getPAMI_ID())
     {
     case 1:
         ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT;
@@ -167,7 +167,7 @@ signed long MovementAction::getWheelSpeed_Left_ForPami()
 signed long MovementAction::getWheelSpeed_Right_ForPami()
 {
     signed long ret = 0;
-    switch (PAMI_ID)
+    switch (SingletonSharedInfos::getInstance().getPAMI_ID())
     {
     case 1:
         ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT;

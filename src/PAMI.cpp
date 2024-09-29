@@ -6,7 +6,7 @@
 #include "MovementAction.h"
 #include <thread>
 
-#include "sharedInfos.h"
+#include "SingletonSharedInfos.h"
 
 // Default constructor
 PAMI::PAMI()
@@ -147,21 +147,21 @@ void PAMI::init(LoggerAndDisplay *logger)
     switch (last)
     {
     case '1':
-        PAMI_ID = 1;
+        SingletonSharedInfos::getInstance().setPAMI_ID(1);
         id = 1;
         break;
     case '2':
-        PAMI_ID = 2;
+        SingletonSharedInfos::getInstance().setPAMI_ID(2);
         id = 2;
         break;
     case '3':
-        PAMI_ID = 3;
+        SingletonSharedInfos::getInstance().setPAMI_ID(3);
         id = 3;
         break;
         // Add a default case for when the hostname is invalid
     }
     mDControl.setId(id);
-    printf("PAMI::init(%d) PAMI_ID:\n", mDControl.mId, PAMI_ID);
+    printf("PAMI::init(%d) PAMI_ID:\n", mDControl.mId, SingletonSharedInfos::getInstance().getPAMI_ID());
     // Get the local IP address (based on example at https://man7.org/linux/man-pages/man3/getifaddrs.3.html)
     struct ifaddrs *ifaddr;
     int family, s;
