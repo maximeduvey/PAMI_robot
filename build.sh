@@ -6,10 +6,19 @@ echo "building PAMI"
 
 
 g++ \
-src/*.cpp src/Drivers/*.cpp src/Tools/*.cpp \
--Isrc/ -Isrc/Drivers/ -Isrc/Tools/ \
+src/*.cpp \
+src/Drivers/*.cpp \
+src/Tools/*.cpp \
+src/Actions/*.cpp \
+-Isrc/ \
+-Isrc/Drivers/ \
+-Isrc/Tools/ \
+-Isrc/Tools/ \
+-Isrc/Actions/ \
+-Isrc/Drivers/Components_Interface/ \
 -o pami \
 -lpigpio \
 -lpthread \
 -lncurses \
+-lwiringPi \
 -lm
