@@ -140,6 +140,19 @@ std::shared_ptr<Action> MovementAction::createActionTurn180()
 {
 }
 
+std::shared_ptr<Action> MovementAction::createActionStartMovingEqualSpeed(float centimeterToRun)
+{
+    long long distance = (centimeterToRun * (MINIMETER_PER_TURN / 100) * DEFAULT_ONE_FULL_TURN_RPM);
+    printf("MovementAction::createActionGoForward(%lld) %f, %d\n", distance, centimeterToRun, DEFAULT_ONE_FULL_TURN_RPM);
+    auto spLeft = getWheelSpeed_Left_ForPami();
+    auto spRight = getWheelSpeed_Right_ForPami();
+    auto speed = (spLeft < spRight) ? spLeft : spRight;
+    return std::make_shared<MovementAction>(speed,
+                                            speed,
+                                            0, 0, distance, distance);
+}
+
+
 /// @brief return the basic speed for the wheel left for a PAMI by id
 /// @return
 signed long MovementAction::getWheelSpeed_Left_ForPami()

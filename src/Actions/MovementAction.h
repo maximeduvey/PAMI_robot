@@ -55,6 +55,7 @@ class MovementAction : public Action
     static std::shared_ptr<Action> createActionTurn90Right();
     static std::shared_ptr<Action> createActionTurn90Left();
     static std::shared_ptr<Action> createActionTurn180();
+    static std::shared_ptr<Action> createActionStartMovingEqualSpeed(float centimeterToRun);
 
 
 };
