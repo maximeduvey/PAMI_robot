@@ -277,11 +277,11 @@ void DeplacementControl::clearAction()
 /// @brief start a calibration to find the best value for motor speed
 void DeplacementControl::doCalibrationOnMotorSpeed()
 {
-    // printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
+     printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
     if (mIsRunning.load() != true)
     {
         setReady();
-        std::thread(&DeplacementControl::motorSpeedCalibration, this).detach();
+        // std::thread(&DeplacementControl::motorSpeedCalibration, this).detach();
         printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
     }
 }

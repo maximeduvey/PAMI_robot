@@ -245,17 +245,20 @@ void PAMI::iniStrat_brainDeadForward()
 {
     printf("PAMI::iniStrat_brainDeadForward()\n");
     mDControl.clearAction();
+
+
+
     // mDControl.addAction(MovementAction::createActionTurn90Right());
 
-    mDControl.addAction(MovementAction::createActionGoForward(10));
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    mDControl.addAction(MovementAction::createActionTurn90Right());
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    mDControl.addAction(MovementAction::createActionTurn90Left());
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    mDControl.addAction(MovementAction::createActionTurn90Left());
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    mDControl.addAction(MovementAction::createActionGoForward(50));
+    mDControl.addAction(MovementAction::createActionGoForward(100));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // mDControl.addAction(MovementAction::createActionTurn90Right());
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // mDControl.addAction(MovementAction::createActionTurn90Left());
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // mDControl.addAction(MovementAction::createActionTurn90Left());
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // mDControl.addAction(MovementAction::createActionGoForward(50));
 
     // if (PAMI_ID == 2)
     // {

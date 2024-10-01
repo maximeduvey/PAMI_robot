@@ -148,13 +148,13 @@ signed long MovementAction::getWheelSpeed_Left_ForPami()
     switch (SingletonSharedInfos::getInstance().getPAMI_ID())
     {
     case 1:
-        ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_LEFT / DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG;
         break;
     case 2:
-        ret = DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_LEFT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_LEFT / DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG;
         break;
     case 3:
-        ret = DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_LEFT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_LEFT / DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG;
         break;
     default:
         ret = 0;
@@ -170,13 +170,13 @@ signed long MovementAction::getWheelSpeed_Right_ForPami()
     switch (SingletonSharedInfos::getInstance().getPAMI_ID())
     {
     case 1:
-        ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_ONE_WHEEL_RIGHT / DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG;
         break;
     case 2:
-        ret = DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_RIGHT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_TWO_WHEEL_RIGHT / DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG;
         break;
     case 3:
-        ret = DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_RIGHT;
+        ret = DEFAULT_MOTOR_SPEED_PAMI_THREE_WHEEL_RIGHT / DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG;
         break;
     default:
         ret = 0;

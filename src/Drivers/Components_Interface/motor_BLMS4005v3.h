@@ -31,8 +31,12 @@
 
 // this represent the tolerance we accepte on the motor position
 // for example: we ask 36000 and get 35995 it's goo
-#define MOTOR_POSITION_TOLERANCE 6
+#define MOTOR_POSITION_TOLERANCE 1
 
 // this is the value we will apply to try to manage the difference in motor speed 
 // to try to maintain a straight line
-#define SPEED_STRENGHT_CORRECTION 5
+#define SPEED_STRENGHT_CORRECTION 1
+
+// is a quick implement for debug before a real one managed by control to set the speed by steps 
+#define DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG 10
+
