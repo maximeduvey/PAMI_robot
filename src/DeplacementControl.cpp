@@ -281,7 +281,7 @@ void DeplacementControl::doCalibrationOnMotorSpeed()
     if (mIsRunning.load() != true)
     {
         setReady();
-        // std::thread(&DeplacementControl::motorSpeedCalibration, this).detach();
+        std::thread(&DeplacementControl::motorSpeedCalibration, this).detach();
         printf("DeplacementControl::goForward(%d)\n", mIsRunning.load());
     }
 }

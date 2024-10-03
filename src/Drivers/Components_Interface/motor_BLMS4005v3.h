@@ -38,5 +38,5 @@
 #define SPEED_STRENGHT_CORRECTION 1
 
 // is a quick implement for debug before a real one managed by control to set the speed by steps 
-#define DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG 10
+#define DEFAULT_SPEED_FACTOR_REDUCTION_DEBUG 1
 

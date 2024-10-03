@@ -17,6 +17,9 @@
 // Swapping these ID's changes which side each motor is on
 #define MOTOR_LEFT (0x142)
 #define MOTOR_RIGHT (0x141)
+// for commanding both motor at the same time, really useful when starting from a stopped position
+// because otherwise the motor who start first is creating a small angle deviation
+#define BROADCAST_MOTORS (0x143)
 
 // Motor reversal selection: set the first macro to either 1 or -1:
 #define LEFT_DIRECTION (1)
