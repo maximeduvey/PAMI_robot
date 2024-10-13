@@ -33,12 +33,13 @@ void Lidar_LD06::initAndStart()
     std::thread lidar_thread(&Lidar_LD06::read_lidar_data, this);
 
     lidar_thread.detach();
+        printf("Lidar_LD06::initAndStart(done)\n");
 }
 
 int Lidar_LD06::open_serial_port(const std::string port_name)
 {
     if (DEBUG_LOG)
-        printf("Lidar_LD06::open_serial_port()\n");
+        std::cout << "Lidar_LD06::open_serial_port() port:"<< port_name << "\n";
     _portName = port_name;
     _serialPort = open(_portName.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (_serialPort == -1)
