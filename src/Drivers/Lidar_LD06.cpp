@@ -15,6 +15,7 @@
 
 Lidar_LD06::Lidar_LD06()
 {
+    printf("Lidar_LD06::Lidar_LD06()\n");
 }
 
 Lidar_LD06::~Lidar_LD06()
@@ -26,7 +27,7 @@ Lidar_LD06::~Lidar_LD06()
 void Lidar_LD06::initAndStart()
 {
     if (DEBUG_LOG)
-        printf("Lidar_LD06::initAndStart()");
+        printf("Lidar_LD06::initAndStart()\n");
     _lidarRunningState.store(false);
     open_serial_port(LD06_UART_DEFAUT_SERIAL_UART_PORT);
     std::thread lidar_thread(&Lidar_LD06::read_lidar_data, this);
@@ -37,7 +38,7 @@ void Lidar_LD06::initAndStart()
 int Lidar_LD06::open_serial_port(const std::string port_name)
 {
     if (DEBUG_LOG)
-        printf("Lidar_LD06::open_serial_port()");
+        printf("Lidar_LD06::open_serial_port()\n");
     _portName = port_name;
     _serialPort = open(_portName.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (_serialPort == -1)
@@ -86,7 +87,7 @@ int Lidar_LD06::open_serial_port(const std::string port_name)
 void Lidar_LD06::read_lidar_data(Lidar_LD06 *myself)
 {
     if (DEBUG_LOG)
-        printf("Lidar_LD06::open_serial_port()");
+        printf("Lidar_LD06::read_lidar_data()\n");
     uint8_t header = 0;
     uint8_t data[LD06_UART_PACKET_SIZE];
     myself->_lidarRunningState.store(true);
