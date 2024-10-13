@@ -78,17 +78,20 @@ int Lidar_LD06::open_serial_port(const std::string port_name)
     tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Disable software flow control
     tty.c_oflag &= ~OPOST;                  // Raw output mode
 
-    tcsetattr(_serialPort.load(), TCSANOW, &tty);
+    auto srPort =  _serialPort.load();
+    tcsetattr(srPort, TCSANOW, &tty);
 
-    return _serialPort.load();
+    std::cout << "Lidar_LD06::open_serial_port() successfully open with serial port:"<< srPort << std::endl;
+    return srPort;
 }
 
 /// @brief static Function to read data from the LD06 lidar
 /// @param myself
 void Lidar_LD06::read_lidar_data(Lidar_LD06 *myself)
 {
+    int srPort =  myself->_serialPort.load();
     if (DEBUG_LOG)
-        printf("Lidar_LD06::read_lidar_data()\n");
+        std::cout << "Lidar_LD06::read_lidar_data() using serial port:"<< srPort <<" \n" ;
     uint8_t header = 0;
     uint8_t data[LD06_UART_PACKET_SIZE];
     myself->_lidarRunningState.store(true);
@@ -96,11 +99,11 @@ void Lidar_LD06::read_lidar_data(Lidar_LD06 *myself)
     while (true)
     {
         // Read the header byte (0x54)
-        read(myself->_serialPort.load(), &header, 1);
-        if (header == 0x54)
+        int ret = read(srPort, &header, 1);
+        if (ret == 0 || header == 0x54)
         {
             // Read the remaining packet (44 bytes)
-            int bytes_read = read(myself->_serialPort.load(), &data, LD06_UART_PACKET_SIZE - 1);
+            int bytes_read = read(srPort, &data, LD06_UART_PACKET_SIZE - 1);
             if (bytes_read != LD06_UART_PACKET_SIZE - 1)
             {
                 std::cerr << "Error reading data packet! " << bytes_read << std::endl;
@@ -144,7 +147,8 @@ void Lidar_LD06::read_lidar_data(Lidar_LD06 *myself)
         }
         else
         {
-            
+            if (DEBUG_LOG)
+                std::cout << "Skipped header ret:" << ret << ", header value:" << (int)header  << std::endl;
         }
     }
 }
