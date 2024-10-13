@@ -41,8 +41,8 @@ int Lidar_LD06::open_serial_port(const std::string port_name)
     if (DEBUG_LOG)
         std::cout << "Lidar_LD06::open_serial_port() port:"<< port_name << "\n";
     _portName = port_name;
-    _serialPort = open(_portName.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
-    if (_serialPort == -1)
+    _serialPort.store(open(_portName.c_str(), O_RDWR | O_NOCTTY | O_NDELAY));
+    if (_serialPort.load() == -1)
     {
         std::cerr << "Error opening serial port!" << std::endl;
         return -1;
@@ -51,7 +51,7 @@ int Lidar_LD06::open_serial_port(const std::string port_name)
     struct termios tty;
     memset(&tty, 0, sizeof(tty));
 
-    if (tcgetattr(_serialPort, &tty) != 0)
+    if (tcgetattr(_serialPort.load(), &tty) != 0)
     {
         std::cerr << "Error getting terminal attributes!" << std::endl;
         return -1;
@@ -78,9 +78,9 @@ int Lidar_LD06::open_serial_port(const std::string port_name)
     tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Disable software flow control
     tty.c_oflag &= ~OPOST;                  // Raw output mode
 
-    tcsetattr(_serialPort, TCSANOW, &tty);
+    tcsetattr(_serialPort.load(), TCSANOW, &tty);
 
-    return _serialPort;
+    return _serialPort.load();
 }
 
 /// @brief static Function to read data from the LD06 lidar
@@ -96,14 +96,14 @@ void Lidar_LD06::read_lidar_data(Lidar_LD06 *myself)
     while (true)
     {
         // Read the header byte (0x54)
-        read(myself->_serialPort, &header, 1);
+        read(myself->_serialPort.load(), &header, 1);
         if (header == 0x54)
         {
             // Read the remaining packet (44 bytes)
-            int bytes_read = read(myself->_serialPort, &data, LD06_UART_PACKET_SIZE - 1);
+            int bytes_read = read(myself->_serialPort.load(), &data, LD06_UART_PACKET_SIZE - 1);
             if (bytes_read != LD06_UART_PACKET_SIZE - 1)
             {
-                std::cerr << "Error reading data packet!" << std::endl;
+                std::cerr << "Error reading data packet! " << bytes_read << std::endl;
                 continue;
             }
 
@@ -141,6 +141,10 @@ void Lidar_LD06::read_lidar_data(Lidar_LD06 *myself)
                           << std::endl;
 
             usleep(50000); // Delay to avoid overwhelming the serial port
+        }
+        else
+        {
+            
         }
     }
 }

@@ -30,7 +30,7 @@ private:
     static void read_lidar_data(Lidar_LD06 *myself);
 
     std::string _portName;
-    int _serialPort;
+    std::atomic<int> _serialPort;
 
     std::thread _runningThread;
     std::atomic<bool> _lidarRunningState;
