@@ -22,6 +22,7 @@
 #include "Drivers/drive.hpp"
 
 #include "DeplacementControl.h"
+#include "Lidar_LD06.h"
 
 // ==== Macros ==========================================
 
@@ -75,6 +76,9 @@ class PAMI
     public: // PAMI propulsion
         DRIVE drive;
         DeplacementControl mDControl;
+
+    /// Sensors ///
+    Lidar_LD06 _lidarLd06;
 
     public :
         LoggerAndDisplay *mlogger = nullptr;

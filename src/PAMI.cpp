@@ -204,6 +204,8 @@ void PAMI::init(LoggerAndDisplay *logger)
     // drive.start();      // Propulsion thread start - THREAD REPLACED BY TASK FUNCTION FOR NOW
     // Get an initial time
     timespec_get(&tzero, TIME_UTC);
+
+    _lidarLd06.initAndStart();
 }
 
 // The sequences of tasks executed by the PAMI for each state
@@ -249,7 +251,7 @@ void PAMI::iniStrat_brainDeadForward()
 
     // mDControl.addAction(MovementAction::createActionStartMovingEqualSpeed(10));
 
-    mDControl.addAction(MovementAction::createActionGoForward(50));
+    //mDControl.addAction(MovementAction::createActionGoForward(50));
 
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     // mDControl.addAction(MovementAction::createActionTurn90Right());
