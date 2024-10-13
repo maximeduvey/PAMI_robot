@@ -6,7 +6,7 @@
 
 #define LD06_UART_DEFAUT_SERIAL_UART_PORT "/dev/serial0"
 #define LD06_UART_PACKET_SIZE 45
-// #define LD06_UART_BAUD_RATE 230400
+#define LD06_UART_BAUD_RATE 230400
 
 /// @brief this is the class to control and read the LIDAR LD06
 ///

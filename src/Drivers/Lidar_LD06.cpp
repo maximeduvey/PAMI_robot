@@ -58,8 +58,8 @@ int Lidar_LD06::open_serial_port(const std::string port_name)
     }
 
     // Set the baud rate
-    cfsetospeed(&tty, B230400);
-    cfsetispeed(&tty, B230400);
+    cfsetospeed(&tty, LD06_UART_BAUD_RATE);
+    cfsetispeed(&tty, LD06_UART_BAUD_RATE);
 
     // 8N1 mode (8 data bits, no parity, 1 stop bit)
     tty.c_cflag &= ~PARENB; // No parity bit
